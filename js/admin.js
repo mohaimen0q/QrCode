@@ -25,6 +25,9 @@
   var dirty = false;
   var openCats = {};      // which categories are expanded, by id
   var photoTarget = null; // the dish waiting for a chosen photo
+  var history = [];       // earlier states of the menu, newest last, for the undo button
+  var savedState = "";    // the menu as last loaded or saved, to tell whether anything differs
+  var undoBtn = document.getElementById("undo");
 
   function el(tag, cls, text) {
     var node = document.createElement(tag);
@@ -67,6 +70,32 @@
     saveState.textContent = value ? "لديك تغييرات غير محفوظة" : "لا توجد تغييرات";
     savebar.classList.toggle("is-dirty", value);
   }
+
+  // ---------- Undo ----------
+  // Call right before changing the menu: remembers the state the undo button goes back to.
+  function checkpoint(state) {
+    history.push(state || JSON.stringify(menu));
+    if (history.length > 100) history.shift();
+    undoBtn.disabled = false;
+  }
+
+  function undo() {
+    if (!history.length) return;
+    menu = JSON.parse(history.pop());
+    undoBtn.disabled = !history.length;
+    setDirty(JSON.stringify(menu) !== savedState);
+    render();
+    toast("تم التراجع عن آخر تعديل.");
+  }
+
+  undoBtn.addEventListener("click", undo);
+  document.addEventListener("keydown", function (e) {
+    // inside a text box Ctrl+Z keeps its normal meaning (undo typing)
+    if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.key.toLowerCase() !== "z") return;
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || editorView.hidden) return;
+    e.preventDefault();
+    undo();
+  });
 
   window.addEventListener("beforeunload", function (e) {
     if (dirty) { e.preventDefault(); e.returnValue = ""; }
@@ -132,6 +161,9 @@
         sourceNote.hidden = false;
       }
       menu.forEach(function (cat) { if (!cat.layout) cat.layout = "list"; });
+      history = [];
+      undoBtn.disabled = true;
+      savedState = JSON.stringify(menu);
       editorView.hidden = false;
       savebar.hidden = false;
       logoutBtn.hidden = false;
@@ -145,6 +177,7 @@
   // ---------- Editor ----------
   function move(list, from, to) {
     if (to < 0 || to >= list.length) return;
+    checkpoint();
     list.splice(to, 0, list.splice(from, 1)[0]);
     setDirty(true);
     render();
@@ -171,7 +204,11 @@
     var input = el("input");
     input.type = type || "text";
     input.value = value == null ? "" : value;
+    // one undo step per visit to a field, not one per keystroke
+    var before = null;
+    input.addEventListener("focus", function () { before = JSON.stringify(menu); });
     input.addEventListener("input", function () {
+      if (before) { checkpoint(before); before = null; }
       onInput(input.value);
       setDirty(true);
     });
@@ -216,6 +253,7 @@
     box.type = "checkbox";
     box.checked = !item.hidden;
     box.addEventListener("change", function () {
+      checkpoint();
       item.hidden = !box.checked;
       row.classList.toggle("is-hidden", item.hidden);
       setDirty(true);
@@ -225,6 +263,7 @@
     tools.appendChild(show);
     if (item.img) {
       tools.appendChild(iconBtn("حذف الصورة", "حذف الصورة", function () {
+        checkpoint();
         delete item.img;
         setDirty(true);
         render();
@@ -235,6 +274,7 @@
     tools.appendChild(iconBtn("تحريك لأسفل", "↓", function () { move(cat.items, i, i + 1); }, i === cat.items.length - 1));
     var del = iconBtn("حذف الصنف", "✕", function () {
       if (!confirm("حذف الصنف «" + (item.n || "بدون اسم") + "»؟")) return;
+      checkpoint();
       cat.items.splice(i, 1);
       setDirty(true);
       render();
@@ -270,7 +310,7 @@
       o.selected = cat.layout === opt[0];
       select.appendChild(o);
     });
-    select.addEventListener("change", function () { cat.layout = select.value; setDirty(true); });
+    select.addEventListener("change", function () { checkpoint(); cat.layout = select.value; setDirty(true); });
     settings.appendChild(field("تنسيق عرض الأطباق", select));
 
     var order = el("div", "acat__order");
@@ -278,6 +318,7 @@
     order.appendChild(iconBtn("تحريك القسم لأسفل", "↓", function () { move(menu, c, c + 1); }, c === menu.length - 1));
     var del = iconBtn("حذف القسم", "حذف القسم", function () {
       if (!confirm("حذف القسم «" + (cat.title || "بدون اسم") + "» مع كل أصنافه (" + cat.items.length + ")؟")) return;
+      checkpoint();
       menu.splice(c, 1);
       setDirty(true);
       render();
@@ -294,6 +335,7 @@
     var add = el("button", "abtn abtn--dashed", "+ إضافة صنف");
     add.type = "button";
     add.addEventListener("click", function () {
+      checkpoint();
       cat.items.push({ n: "", p: 0 });
       setDirty(true);
       render();
@@ -315,6 +357,7 @@
 
   document.getElementById("addCat").addEventListener("click", function () {
     var cat = { id: "c" + Date.now().toString(36), title: "", layout: "list", items: [] };
+    checkpoint();
     menu.push(cat);
     openCats[cat.id] = true;
     setDirty(true);
@@ -360,6 +403,7 @@
       if (!r.ok || !r.data.url) {
         return toast(r.status === 503 ? "التخزين غير مفعّل على الخادم بعد." : "تعذّر رفع الصورة.", true);
       }
+      checkpoint();
       item.img = r.data.url;
       setDirty(true);
       render();
@@ -398,6 +442,7 @@
     saveState.textContent = "جارٍ الحفظ…";
     api("/api/menu", "PUT", menu).then(function (r) {
       if (r.ok) {
+        savedState = JSON.stringify(menu);
         setDirty(false);
         sourceNote.hidden = true;
         return toast("تم الحفظ. التغييرات ظاهرة الآن للزبائن.");

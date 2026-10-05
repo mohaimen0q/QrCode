@@ -58,7 +58,10 @@
 
   <div class="savebar" id="savebar" hidden>
     <span class="savebar__state" id="saveState">لا توجد تغييرات</span>
-    <button class="abtn abtn--primary" id="save" type="button" disabled>حفظ التغييرات</button>
+    <div class="savebar__buttons">
+      <button class="abtn" id="undo" type="button" disabled>تراجع</button>
+      <button class="abtn abtn--primary" id="save" type="button" disabled>حفظ التغييرات</button>
+    </div>
   </div>
 
   <div class="toast" id="toast" role="status" hidden></div>
