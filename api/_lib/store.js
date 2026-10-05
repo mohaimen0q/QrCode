@@ -1,10 +1,12 @@
 // Where the edited menu and uploaded photos live.
-// On Vercel: a Blob store (BLOB_READ_WRITE_TOKEN). On a developer machine: plain files in .data/.
+// On Vercel: the connected Blob store. On a developer machine: plain files in .data/.
 const fs = require("fs");
 const path = require("path");
 
 const MENU_KEY = "menu.json";
-const useBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+// A connected store gives the project BLOB_STORE_ID (the SDK then signs in through Vercel itself);
+// older connections give BLOB_READ_WRITE_TOKEN instead. Either one means the store is usable.
+const useBlob = Boolean(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN);
 const localDir = path.join(process.cwd(), ".data");
 
 function ready() {
