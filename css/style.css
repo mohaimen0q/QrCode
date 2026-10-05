@@ -565,13 +565,28 @@ img { display: block; max-width: 100%; height: auto; }
   .qr__code { width: 208px; }
 }
 
+/* ---------- Printed table card: A6, same charcoal cover as the screen ---------- */
+@page { size: 105mm 148mm; margin: 0; }
+
 @media print {
-  .landing { background: #fff; color: #000; min-height: auto; }
-  .landing::before, .landing::after { display: none; }
-  .landing__frame { border-color: #000; outline: 0; }
-  .landing .on-dark { filter: none; opacity: 1; }
-  .qr__code { box-shadow: 0 0 0 1px #000; }
-  .qr__hint { color: #000; }
+  html, body { width: 105mm; height: 148mm; overflow: hidden; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .landing { min-height: 0; height: 148mm; padding: 5mm; }
+  .landing__frame { gap: 5mm; padding: 6mm 4mm; outline-offset: 1.2mm; }
+  .landing__frame > * { animation: none; }
+  .landing .cover__lockup { width: 30mm; }
+  .landing__brand { gap: 2.4mm; }
+  .landing__brand .cover__emblem { width: 20mm; }
+  .landing__brand .cover__wordmark { width: 37mm; }
+  .qr__code {
+    width: 33mm;
+    padding: 2mm;
+    border-radius: 1.2mm;
+    box-shadow: 0 0 0 1.2mm var(--ink), 0 0 0 1.45mm rgba(224, 225, 224, 0.6);
+  }
+  .qr__ornament { width: 24mm; margin-top: 4.5mm; }
+  .qr__title { margin-top: 1.6mm; font-size: 13pt; }
+  .qr__hint { margin-top: 0; font-size: 8.5pt; }
 }
 
 @media (prefers-reduced-motion: reduce) {
