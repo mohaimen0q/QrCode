@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2B2F30">
+  <title>Venecia Restaurant | امسح لعرض القائمة</title>
+  <meta name="description" content="امسح رمز QR لعرض قائمة مطعم فينيسيا على هاتفك.">
+  <link rel="icon" href="assets/emblem.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Changa:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="landing">
+    <div class="landing__frame">
+      <img class="cover__lockup on-dark" src="assets/lockup-menu.svg" alt="Menu" width="296" height="116">
+
+      <h1 class="landing__brand">
+        <img class="cover__emblem on-dark" src="assets/emblem.svg" alt="" width="132" height="181">
+        <img class="cover__wordmark on-dark" src="assets/wordmark.svg" alt="Venecia Restaurant" width="209" height="34">
+      </h1>
+
+      <section class="qr" aria-labelledby="qrTitle">
+        <div class="qr__code">
+          <canvas id="qr" width="720" height="720" role="img" aria-label="رمز QR يفتح قائمة الطعام"></canvas>
+        </div>
+        <img class="qr__ornament on-dark" src="assets/ornament.svg" alt="" width="213" height="30">
+        <h2 class="qr__title" id="qrTitle">امسح الرمز لعرض القائمة</h2>
+        <p class="qr__hint">وجّه كاميرا هاتفك نحو الرمز</p>
+      </section>
+
+      <img class="cover__lockup on-dark" src="assets/lockup-restaurant.svg" alt="Restaurant" width="296" height="116">
+    </div>
+  </main>
+
+  <script src="js/vendor/qrcode.js"></script>
+  <script src="js/qr.js"></script>
+</body>
+</html>

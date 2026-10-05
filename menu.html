@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2B2F30">
+  <title>قائمة الطعام | Venecia Restaurant</title>
+  <meta name="description" content="قائمة مطعم فينيسيا: شوربات، مقبلات، سلطات، باستا، ريزوتو، لحوم، دجاج، أسماك، بيتزا وتحلية.">
+  <link rel="icon" href="assets/emblem.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Changa:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="menu-page">
+
+  <div class="loader" id="loader" role="status" aria-label="جارٍ تحميل القائمة">
+    <div class="loader__ring"><img class="on-dark" src="assets/emblem.svg" alt="" width="66" height="90"></div>
+  </div>
+  <noscript><style>.loader { display: none; }</style></noscript>
+
+  <aside class="rail" aria-hidden="true"><img src="assets/rail.svg" alt=""></aside>
+
+  <header class="cover" id="top">
+    <div class="cover__frame">
+      <img class="cover__lockup on-dark" src="assets/lockup-menu.svg" alt="Menu" width="296" height="116">
+      <h1 class="cover__brand">
+        <img class="cover__emblem on-dark" src="assets/emblem.svg" alt="" width="132" height="181">
+        <img class="cover__wordmark on-dark" src="assets/wordmark.svg" alt="Venecia" width="209" height="34">
+      </h1>
+      <img class="cover__lockup on-dark" src="assets/lockup-restaurant.svg" alt="Restaurant" width="296" height="116">
+    </div>
+    <a class="cover__cue" href="#menu">
+      <span>تصفّح القائمة</span>
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 9l7 7 7-7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </header>
+
+  <nav class="tabs" aria-label="أقسام القائمة">
+    <button class="tabs__all" id="openIndex" type="button" aria-label="عرض كل الأقسام" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <ul class="tabs__list" id="tabs"></ul>
+  </nav>
+
+  <main class="sheet">
+    <label class="search">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span class="visually-hidden">ابحث في القائمة</span>
+      <input type="search" id="search" placeholder="ابحث عن طبق أو مكوّن" autocomplete="off" enterkeyhint="search">
+    </label>
+
+    <div id="menu"></div>
+    <p class="empty" id="empty" hidden>لا يوجد طبق بهذا الاسم. جرّب كلمة أخرى.</p>
+    <noscript><p class="empty">يحتاج عرض القائمة إلى تفعيل JavaScript في المتصفح.</p></noscript>
+  </main>
+
+  <footer class="foot">
+    <img class="foot__ornament on-dark" src="assets/ornament.svg" alt="" width="213" height="30">
+    <img class="on-dark" src="assets/emblem.svg" alt="" width="52" height="71">
+    <img class="on-dark" src="assets/wordmark.svg" alt="Venecia" width="132" height="22">
+  </footer>
+
+  <a class="to-top" id="toTop" href="#top" aria-label="العودة إلى أعلى القائمة" hidden>
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 14l7-7 7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+
+  <dialog class="index" id="index" aria-label="أقسام القائمة">
+    <div class="index__head">
+      <img class="on-dark" src="assets/emblem.svg" alt="" width="40" height="55">
+      <button class="index__close" id="closeIndex" type="button" aria-label="إغلاق">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <h2 class="index__title">أقسام القائمة</h2>
+    <ul class="index__list" id="indexList"></ul>
+  </dialog>
+
+  <script src="js/menu-data.js"></script>
+  <script src="js/menu.js"></script>
+</body>
+</html>
