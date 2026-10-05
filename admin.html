@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#2B2F30">
+  <title>إدارة القائمة | Venecia Restaurant</title>
+  <link rel="icon" href="assets/emblem.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Changa:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin">
+
+  <header class="abar">
+    <div class="abar__brand">
+      <img class="on-dark" src="assets/emblem.svg" alt="" width="30" height="41">
+      <span>إدارة القائمة</span>
+    </div>
+    <div class="abar__actions">
+      <a class="abar__link" href="menu.html" target="_blank" rel="noopener">عرض قائمة الزبائن</a>
+      <button class="abar__link" id="logout" type="button" hidden>تسجيل الخروج</button>
+    </div>
+  </header>
+
+  <!-- Sign in -->
+  <main class="login" id="loginView" hidden>
+    <form class="login__card" id="loginForm" autocomplete="on">
+      <img src="assets/ornament.svg" alt="" width="150" height="21">
+      <h1>تسجيل الدخول</h1>
+      <p class="login__lead">أدخل بياناتك لإدارة قائمة الطعام.</p>
+      <label class="field">
+        <span>اسم المستخدم</span>
+        <input id="username" name="username" type="text" autocomplete="username" required>
+      </label>
+      <label class="field">
+        <span>كلمة المرور</span>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+      </label>
+      <p class="login__error" id="loginError" role="alert" hidden></p>
+      <button class="abtn abtn--primary" type="submit">دخول</button>
+    </form>
+  </main>
+
+  <!-- Editor -->
+  <main class="editor" id="editorView" hidden>
+    <div class="editor__intro">
+      <h1>أقسام القائمة</h1>
+      <p>عدّل الأقسام والأصناف والأسعار والصور، ثم اضغط «حفظ التغييرات» لتظهر للزبائن.</p>
+    </div>
+    <p class="editor__note" id="sourceNote" hidden></p>
+    <div id="cats"></div>
+    <button class="abtn abtn--dashed" id="addCat" type="button">+ إضافة قسم جديد</button>
+  </main>
+
+  <div class="savebar" id="savebar" hidden>
+    <span class="savebar__state" id="saveState">لا توجد تغييرات</span>
+    <button class="abtn abtn--primary" id="save" type="button" disabled>حفظ التغييرات</button>
+  </div>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+  <input id="filePicker" type="file" accept="image/*" hidden>
+
+  <script src="js/menu-data.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

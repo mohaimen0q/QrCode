@@ -397,6 +397,36 @@ img { display: block; max-width: 100%; height: auto; }
   line-height: 1.65;
 }
 
+/* Display styles a category can use (chosen on the admin page) */
+.cat__list--cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding-top: 20px;
+}
+.cat__list--cards .dish {
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 14px 26px -20px rgba(43, 47, 48, 0.7);
+}
+.cat__list--cards .dish__photo {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 0;
+  box-shadow: none;
+}
+.cat__list--cards .dish__body { width: 100%; padding: 12px 12px 14px; }
+.cat__list--cards .dish__head { flex-direction: column; align-items: flex-start; gap: 2px; }
+.cat__list--cards .dish__dots { display: none; }
+.cat__list--cards .dish__name { font-size: 1.0625rem; }
+.cat__list--cards .dish__desc { font-size: 0.9375rem; line-height: 1.55; }
+
 .empty {
   margin: 56px 0;
   text-align: center;

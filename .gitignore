@@ -1,2 +1,6 @@
 .claude/
 *.pdf
+node_modules/
+.env
+.data/
+.vercel/

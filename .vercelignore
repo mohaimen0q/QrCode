@@ -1,0 +1,6 @@
+dev-server.js
+.env.example
+README.md
+.data
+.claude
+*.pdf
