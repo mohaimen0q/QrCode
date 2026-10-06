@@ -33,11 +33,18 @@ function clean(input) {
       const img = text(item.img, 400);
       if (d) dish.d = d;
       if (d2) dish.d2 = d2;
+      for (const [key, max] of [["nEn", 80], ["dEn", 240], ["d2En", 240]]) {
+        const value = text(item[key], max);
+        if (value) dish[key] = value;
+      }
       if (img && /^(https:\/\/[^\s"'<>]+|\/uploads\/[\w.-]+|[\w-]+)$/.test(img)) dish.img = img;
       if (item.hidden === true) dish.hidden = true;
       items.push(dish);
     }
-    out.push({ id, title, layout: LAYOUTS.includes(cat.layout) ? cat.layout : "list", items });
+    const entry = { id, title, layout: LAYOUTS.includes(cat.layout) ? cat.layout : "list", items };
+    const titleEn = text(cat.titleEn, 60);
+    if (titleEn) entry.titleEn = titleEn;
+    out.push(entry);
   }
   return out;
 }

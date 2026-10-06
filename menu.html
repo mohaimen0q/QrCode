@@ -11,33 +11,52 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Changa:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script>
+    // set the saved language before anything is drawn, so the page does not flip direction after loading
+    try {
+      if (localStorage.getItem("venecia_lang") === "en") {
+        document.documentElement.lang = "en";
+        document.documentElement.dir = "ltr";
+      }
+    } catch (e) {}
+  </script>
 </head>
 <body class="menu-page">
 
-  <div class="loader" id="loader" role="status" aria-label="جارٍ تحميل القائمة">
+  <div class="loader" id="loader" role="status" aria-label="Loading">
     <div class="loader__ring"><img class="on-dark" src="assets/emblem.svg" alt="" width="66" height="90"></div>
   </div>
   <noscript><style>.loader { display: none; }</style></noscript>
 
   <aside class="rail" aria-hidden="true"><img src="assets/rail.svg" alt=""></aside>
 
-  <header class="cover" id="top">
-    <div class="cover__frame">
-      <img class="cover__lockup on-dark" src="assets/lockup-menu.svg" alt="Menu" width="296" height="116">
-      <h1 class="cover__brand">
-        <img class="cover__emblem on-dark" src="assets/emblem.svg" alt="" width="132" height="181">
-        <img class="cover__wordmark on-dark" src="assets/wordmark.svg" alt="Venecia" width="209" height="34">
-      </h1>
-      <img class="cover__lockup on-dark" src="assets/lockup-restaurant.svg" alt="Restaurant" width="296" height="116">
+  <header class="mast" id="top">
+    <div class="mast__top">
+      <p class="mast__place" data-i18n="place">طرابلس - السياحية</p>
+      <div class="lang" role="group" aria-label="Language">
+        <button class="lang__btn" type="button" data-lang="ar" lang="ar">العربية</button>
+        <button class="lang__btn" type="button" data-lang="en" lang="en">EN</button>
+      </div>
     </div>
-    <a class="cover__cue" href="#menu">
-      <span>تصفّح القائمة</span>
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 9l7 7 7-7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </a>
+
+    <div class="mast__brand">
+      <div class="mast__title">
+        <span class="mast__label" lang="en">Restaurant</span>
+        <h1 data-i18n="menuTitle">قائمة الطعام</h1>
+        <span class="mast__label" data-i18n="menuOther" lang="en">Menu</span>
+      </div>
+      <span class="mast__rule" aria-hidden="true"></span>
+      <div class="mast__logo">
+        <img class="on-dark" src="assets/emblem.svg" alt="" width="132" height="181">
+        <img class="on-dark" src="assets/wordmark.svg" alt="Venecia" width="209" height="34">
+      </div>
+    </div>
+
+    <img class="mast__ornament on-dark" src="assets/ornament.svg" alt="" width="213" height="30">
   </header>
 
-  <nav class="tabs" aria-label="أقسام القائمة">
-    <button class="tabs__all" id="openIndex" type="button" aria-label="عرض كل الأقسام" aria-haspopup="dialog">
+  <nav class="tabs" id="tabsNav">
+    <button class="tabs__all" id="openIndex" type="button" aria-haspopup="dialog">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
     </button>
     <ul class="tabs__list" id="tabs"></ul>
@@ -46,33 +65,59 @@
   <main class="sheet">
     <label class="search">
       <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M16.5 16.5 21 21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      <span class="visually-hidden">ابحث في القائمة</span>
+      <span class="visually-hidden" data-i18n="searchLabel">ابحث في القائمة</span>
       <input type="search" id="search" placeholder="ابحث عن طبق أو مكوّن" autocomplete="off" enterkeyhint="search">
     </label>
 
     <div id="menu"></div>
-    <p class="empty" id="empty" hidden>لا يوجد طبق بهذا الاسم. جرّب كلمة أخرى.</p>
+    <p class="empty" id="empty" data-i18n="empty" hidden>لا يوجد طبق بهذا الاسم. جرّب كلمة أخرى.</p>
     <noscript><p class="empty">يحتاج عرض القائمة إلى تفعيل JavaScript في المتصفح.</p></noscript>
   </main>
 
   <footer class="foot">
-    <img class="foot__ornament on-dark" src="assets/ornament.svg" alt="" width="213" height="30">
-    <img class="on-dark" src="assets/emblem.svg" alt="" width="52" height="71">
-    <img class="on-dark" src="assets/wordmark.svg" alt="Venecia" width="132" height="22">
+    <div class="foot__inner">
+      <div class="foot__head">
+        <div class="foot__logo">
+          <img class="on-dark" src="assets/emblem.svg" alt="" width="132" height="181">
+          <img class="on-dark" src="assets/wordmark.svg" alt="Venecia" width="209" height="34">
+        </div>
+        <p class="foot__welcome" data-i18n="welcome">أهلاً بكم في فينيسيا</p>
+      </div>
+
+      <section class="foot__block">
+        <h2 data-i18n="visit">زورونا</h2>
+        <p data-i18n="address">طرابلس - السياحية، بالقرب من جزيرة الغيران</p>
+      </section>
+
+      <section class="foot__block">
+        <h2 data-i18n="hours">ساعات العمل</h2>
+        <dl class="foot__hours">
+          <div><dt data-i18n="daily">كل يوم</dt><dd data-i18n="dailyTime">1:00 ظهراً – 12:00 منتصف الليل</dd></div>
+          <div><dt data-i18n="friday">الجمعة</dt><dd data-i18n="fridayTime">2:30 ظهراً – 12:00 منتصف الليل</dd></div>
+        </dl>
+      </section>
+
+      <section class="foot__block">
+        <h2 data-i18n="contact">تواصل معنا</h2>
+        <a class="foot__phone" href="tel:0913043131" dir="ltr">091-3043131</a>
+      </section>
+
+      <p class="foot__sign" lang="en">Venecia Restaurant</p>
+    </div>
   </footer>
 
-  <a class="to-top" id="toTop" href="#top" aria-label="العودة إلى أعلى القائمة" hidden>
+  <a class="to-top" id="toTop" href="#top" hidden>
     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 14l7-7 7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </a>
 
-  <dialog class="index" id="index" aria-label="أقسام القائمة">
+  <dialog class="index" id="index">
     <div class="index__head">
       <img class="on-dark" src="assets/emblem.svg" alt="" width="40" height="55">
-      <button class="index__close" id="closeIndex" type="button" aria-label="إغلاق">
+      <button class="index__close" id="closeIndex" type="button">
         <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
       </button>
     </div>
-    <h2 class="index__title">أقسام القائمة</h2>
+    <h2 class="index__title" data-i18n="sections">أقسام القائمة</h2>
     <ul class="index__list" id="indexList"></ul>
   </dialog>
 

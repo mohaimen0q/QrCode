@@ -160,7 +160,25 @@
         sourceNote.textContent = "هذه هي القائمة الأصلية للموقع. أول حفظ سيجعل نسختك المعدّلة هي الظاهرة للزبائن.";
         sourceNote.hidden = false;
       }
-      menu.forEach(function (cat) { if (!cat.layout) cat.layout = "list"; });
+      // a menu saved before English was added: fill the English from the built-in list, matched by the Arabic text
+      var known = {};
+      (window.VENECIA_MENU || []).forEach(function (cat) {
+        if (cat.titleEn) known[cat.title] = cat.titleEn;
+        cat.items.forEach(function (item) {
+          if (item.nEn) known[item.n] = item.nEn;
+          if (item.d && item.dEn) known[item.d] = item.dEn;
+          if (item.d2 && item.d2En) known[item.d2] = item.d2En;
+        });
+      });
+      menu.forEach(function (cat) {
+        if (!cat.layout) cat.layout = "list";
+        if (!cat.titleEn && known[cat.title]) cat.titleEn = known[cat.title];
+        cat.items.forEach(function (item) {
+          if (!item.nEn && known[item.n]) item.nEn = known[item.n];
+          if (item.d && !item.dEn && known[item.d]) item.dEn = known[item.d];
+          if (item.d2 && !item.d2En && known[item.d2]) item.d2En = known[item.d2];
+        });
+      });
       history = [];
       undoBtn.disabled = true;
       savedState = JSON.stringify(menu);
@@ -245,6 +263,15 @@
     fields.appendChild(field("السعر (دينار)", price, "field--price"));
     fields.appendChild(field("الوصف", textInput(item.d, function (v) { item.d = v; }), "field--wide"));
     fields.appendChild(field("سطر وصف ثانٍ (اختياري)", textInput(item.d2, function (v) { item.d2 = v; }), "field--wide"));
+    var en = el("div", "adish__en");
+    en.appendChild(el("p", "adish__enlabel", "English"));
+    [["Name", "nEn"], ["Description", "dEn"], ["Second description line (optional)", "d2En"]].forEach(function (f) {
+      var input = textInput(item[f[1]], function (v) { item[f[1]] = v; });
+      input.dir = "ltr";
+      input.lang = "en";
+      en.appendChild(field(f[0], input));
+    });
+    fields.appendChild(en);
     row.appendChild(fields);
 
     var tools = el("div", "adish__tools");
@@ -303,6 +330,10 @@
       cat.title = v;
       title.textContent = v || "قسم بدون اسم";
     })));
+    var titleEn = textInput(cat.titleEn, function (v) { cat.titleEn = v; });
+    titleEn.dir = "ltr";
+    titleEn.lang = "en";
+    settings.appendChild(field("اسم القسم بالإنجليزية", titleEn));
     var select = el("select");
     LAYOUTS.forEach(function (opt) {
       var o = el("option", null, opt[1]);
