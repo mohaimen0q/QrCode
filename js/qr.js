@@ -1,10 +1,12 @@
 (function () {
-  // Leave empty to point the QR at menu.html next to this page (works wherever the site is hosted).
+  // Leave empty to point the QR at the menu next to this page (works wherever the site is hosted).
   // Set a full address here only if the menu lives somewhere else, e.g. "https://example.com/menu.html".
   var MENU_URL = "";
 
   var canvas = document.getElementById("qr");
-  var url = MENU_URL || new URL("menu.html", window.location.href).href;
+  // the English landing page asks for menu.html?lang=en through data-target
+  var target = canvas.getAttribute("data-target") || "menu.html";
+  var url = MENU_URL || new URL(target, window.location.href).href;
 
   // Error correction "M" keeps the code coarse enough to scan easily from a table card.
   var qr = qrcode(0, "M");

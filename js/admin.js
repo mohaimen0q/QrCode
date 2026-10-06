@@ -1,5 +1,13 @@
 (function () {
   var TOKEN_KEY = "venecia_admin_token";
+  var SOCIALS = [
+    ["instagram", "Instagram", "https://www.instagram.com/..."],
+    ["facebook", "Facebook", "https://www.facebook.com/..."],
+    ["tiktok", "TikTok", "https://www.tiktok.com/@..."],
+    ["whatsapp", "WhatsApp", "https://wa.me/218..."],
+    ["snapchat", "Snapchat", "https://www.snapchat.com/add/..."],
+    ["maps", "Google Maps", "https://maps.app.goo.gl/..."]
+  ];
   var LAYOUTS = [
     ["list", "قائمة مع صورة صغيرة"],
     ["cards", "بطاقات بصور كبيرة"],
@@ -22,6 +30,7 @@
   var token = null;
   try { token = sessionStorage.getItem(TOKEN_KEY); } catch (e) {}
   var menu = [];
+  var social = {};        // links to the restaurant's accounts, by network name
   var dirty = false;
   var openCats = {};      // which categories are expanded, by id
   var photoTarget = null; // the dish waiting for a chosen photo
@@ -73,17 +82,23 @@
 
   // ---------- Undo ----------
   // Call right before changing the menu: remembers the state the undo button goes back to.
+  function snapshot() {
+    return JSON.stringify({ menu: menu, social: social });
+  }
+
   function checkpoint(state) {
-    history.push(state || JSON.stringify(menu));
+    history.push(state || snapshot());
     if (history.length > 100) history.shift();
     undoBtn.disabled = false;
   }
 
   function undo() {
     if (!history.length) return;
-    menu = JSON.parse(history.pop());
+    var state = JSON.parse(history.pop());
+    menu = state.menu;
+    social = state.social;
     undoBtn.disabled = !history.length;
-    setDirty(JSON.stringify(menu) !== savedState);
+    setDirty(snapshot() !== savedState);
     render();
     toast("تم التراجع عن آخر تعديل.");
   }
@@ -150,7 +165,9 @@
   // ---------- Load ----------
   function openEditor() {
     loginView.hidden = true;
-    api("/api/menu").then(function (r) {
+    Promise.all([api("/api/menu"), api("/api/settings")]).then(function (both) {
+      var r = both[0];
+      social = (both[1].ok && both[1].data && both[1].data.social) || {};
       if (r.ok && Array.isArray(r.data)) {
         menu = r.data;
         sourceNote.hidden = true;
@@ -181,7 +198,7 @@
       });
       history = [];
       undoBtn.disabled = true;
-      savedState = JSON.stringify(menu);
+      savedState = snapshot();
       editorView.hidden = false;
       savebar.hidden = false;
       logoutBtn.hidden = false;
@@ -224,7 +241,7 @@
     input.value = value == null ? "" : value;
     // one undo step per visit to a field, not one per keystroke
     var before = null;
-    input.addEventListener("focus", function () { before = JSON.stringify(menu); });
+    input.addEventListener("focus", function () { before = snapshot(); });
     input.addEventListener("input", function () {
       if (before) { checkpoint(before); before = null; }
       onInput(input.value);
@@ -381,7 +398,32 @@
     return card;
   }
 
+  function renderSocial() {
+    var box = document.getElementById("socialFields");
+    box.textContent = "";
+    var filled = 0;
+    SOCIALS.forEach(function (s) {
+      if (social[s[0]]) filled++;
+      var input = textInput(social[s[0]], function (v) {
+        v = v.trim();
+        if (v) social[s[0]] = v; else delete social[s[0]];
+        input.classList.remove("is-bad");
+      }, "url");
+      input.dir = "ltr";
+      input.placeholder = s[2];
+      input.setAttribute("data-social", s[0]);
+      var wrap = field(s[1], input);
+      var icon = el("img");
+      icon.src = "assets/social/" + (s[0] === "maps" ? "googlemaps" : s[0]) + ".svg";
+      icon.alt = "";
+      wrap.firstChild.insertBefore(icon, wrap.firstChild.firstChild);
+      box.appendChild(wrap);
+    });
+    document.getElementById("socialCount").textContent = filled ? filled + " رابط" : "لا توجد روابط";
+  }
+
   function render() {
+    renderSocial();
     catsEl.textContent = "";
     menu.forEach(function (cat, c) { catsEl.appendChild(renderCat(cat, c)); });
   }
@@ -445,6 +487,14 @@
   });
 
   // ---------- Save ----------
+  function badSocial() {
+    for (var i = 0; i < SOCIALS.length; i++) {
+      var url = social[SOCIALS[i][0]];
+      if (url && !/^https:\/\/[^\s"'<>]+$/.test(url)) return SOCIALS[i];
+    }
+    return null;
+  }
+
   function problem() {
     for (var c = 0; c < menu.length; c++) {
       var cat = menu[c];
@@ -460,6 +510,14 @@
   }
 
   saveBtn.addEventListener("click", function () {
+    var bad = badSocial();
+    if (bad) {
+      document.getElementById("socialCard").open = true;
+      var field = document.querySelector('[data-social="' + bad[0] + '"]');
+      field.classList.add("is-bad");
+      field.scrollIntoView({ block: "center" });
+      return toast("رابط " + bad[1] + " غير صحيح. يجب أن يبدأ بـ https://", true);
+    }
     var issue = problem();
     if (issue) {
       openCats[issue.cat.id] = true;
@@ -471,9 +529,10 @@
     });
     saveBtn.disabled = true;
     saveState.textContent = "جارٍ الحفظ…";
-    api("/api/menu", "PUT", menu).then(function (r) {
+    Promise.all([api("/api/menu", "PUT", menu), api("/api/settings", "PUT", { social: social })]).then(function (both) {
+      var r = both[0].ok ? both[1] : both[0];
       if (r.ok) {
-        savedState = JSON.stringify(menu);
+        savedState = snapshot();
         setDirty(false);
         sourceNote.hidden = true;
         return toast("تم الحفظ. التغييرات ظاهرة الآن للزبائن.");

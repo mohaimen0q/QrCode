@@ -13,10 +13,10 @@ function ready() {
   return useBlob || !process.env.VERCEL;
 }
 
-async function readMenu() {
+async function readJson(key) {
   if (useBlob) {
     const { list } = require("@vercel/blob");
-    const { blobs } = await list({ prefix: MENU_KEY, limit: 1 });
+    const { blobs } = await list({ prefix: key, limit: 1 });
     if (!blobs.length) return null;
     // the upload time in the query string skips the CDN copy of an older save
     const stamp = new Date(blobs[0].uploadedAt).getTime();
@@ -24,16 +24,16 @@ async function readMenu() {
     if (!res.ok) return null;
     return res.json();
   }
-  const file = path.join(localDir, MENU_KEY);
+  const file = path.join(localDir, key);
   if (!fs.existsSync(file)) return null;
   return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
-async function writeMenu(menu) {
-  const body = JSON.stringify(menu);
+async function writeJson(key, value) {
+  const body = JSON.stringify(value);
   if (useBlob) {
     const { put } = require("@vercel/blob");
-    await put(MENU_KEY, body, {
+    await put(key, body, {
       access: "public",
       addRandomSuffix: false,
       allowOverwrite: true,
@@ -43,7 +43,15 @@ async function writeMenu(menu) {
     return;
   }
   fs.mkdirSync(localDir, { recursive: true });
-  fs.writeFileSync(path.join(localDir, MENU_KEY), body);
+  fs.writeFileSync(path.join(localDir, key), body);
+}
+
+function readMenu() {
+  return readJson(MENU_KEY);
+}
+
+function writeMenu(menu) {
+  return writeJson(MENU_KEY, menu);
 }
 
 async function saveImage(name, buffer, contentType) {
@@ -58,4 +66,4 @@ async function saveImage(name, buffer, contentType) {
   return "/uploads/" + name; // served by dev-server.js only
 }
 
-module.exports = { ready, readMenu, writeMenu, saveImage };
+module.exports = { ready, readJson, writeJson, readMenu, writeMenu, saveImage };

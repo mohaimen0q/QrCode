@@ -14,6 +14,9 @@
   <script>
     // set the saved language before anything is drawn, so the page does not flip direction after loading
     try {
+      // ?lang=en / ?lang=ar in the address (the English QR code) wins over the remembered choice
+      var asked = /[?&]lang=(en|ar)\b/.exec(location.search);
+      if (asked) localStorage.setItem("venecia_lang", asked[1]);
       if (localStorage.getItem("venecia_lang") === "en") {
         document.documentElement.lang = "en";
         document.documentElement.dir = "ltr";
@@ -100,6 +103,11 @@
       <section class="foot__block">
         <h2 data-i18n="contact">تواصل معنا</h2>
         <a class="foot__phone" href="tel:0913043131" dir="ltr">091-3043131</a>
+      </section>
+
+      <section class="foot__block" id="socialBlock" hidden>
+        <h2 data-i18n="follow">تابعونا</h2>
+        <ul class="foot__social" id="social"></ul>
       </section>
 
       <p class="foot__sign" lang="en">Venecia Restaurant</p>

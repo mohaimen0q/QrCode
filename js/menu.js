@@ -32,6 +32,7 @@
       friday: "الجمعة",
       fridayTime: "2:30 ظهراً – 12:00 منتصف الليل",
       contact: "تواصل معنا",
+      follow: "تابعونا",
       pageTitle: "قائمة الطعام | Venecia Restaurant"
     },
     en: {
@@ -55,12 +56,16 @@
       friday: "Friday",
       fridayTime: "2:30 PM – 12:00 AM",
       contact: "Contact us",
+      follow: "Follow us",
       pageTitle: "Menu | Venecia Restaurant"
     }
   };
 
   var lang = "ar";
   try { if (localStorage.getItem(LANG_KEY) === "en") lang = "en"; } catch (e) {}
+  // the address can ask for a language too (the English QR code opens menu.html?lang=en)
+  var asked = /[?&]lang=(en|ar)\b/.exec(location.search);
+  if (asked) lang = asked[1];
 
   function el(tag, cls, text) {
     var node = document.createElement(tag);
@@ -341,6 +346,42 @@
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onScroll);
   search.addEventListener("input", filter);
+
+  // ---- Social links in the footer (set on the admin page; hidden when there are none) ----
+  var SOCIALS = [
+    ["instagram", "Instagram"], ["facebook", "Facebook"], ["tiktok", "TikTok"],
+    ["whatsapp", "WhatsApp"], ["snapchat", "Snapchat"], ["maps", "Google Maps"]
+  ];
+  function showSocial(social) {
+    var list = document.getElementById("social");
+    list.textContent = "";
+    SOCIALS.forEach(function (s) {
+      var url = social && social[s[0]];
+      if (!url || !/^https:\/\//.test(url)) return;
+      var li = el("li");
+      var a = el("a");
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.setAttribute("aria-label", s[1]);
+      a.title = s[1];
+      var icon = el("img", "on-dark");
+      icon.src = "assets/social/" + (s[0] === "maps" ? "googlemaps" : s[0]) + ".svg";
+      icon.alt = "";
+      icon.width = 22;
+      icon.height = 22;
+      a.appendChild(icon);
+      li.appendChild(a);
+      list.appendChild(li);
+    });
+    document.getElementById("socialBlock").hidden = !list.children.length;
+  }
+  if (window.fetch && location.protocol !== "file:") {
+    fetch("/api/settings", { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (settings) { if (settings) showSocial(settings.social); })
+      .catch(function () {});
+  }
 
   // ---- Start ----
   applyLanguage();

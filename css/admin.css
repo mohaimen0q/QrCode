@@ -212,6 +212,13 @@
 .check { display: flex; align-items: center; gap: 8px; margin-inline-end: auto; font-size: 0.9375rem; cursor: pointer; }
 .check input { width: 20px; height: 20px; accent-color: var(--ink); }
 
+.editor__sub { margin: 24px 0 12px; font-size: 1.25rem; }
+.asocial__lead { margin: 0 0 14px; color: var(--muted); font-size: 0.9375rem; font-weight: 300; }
+.asocial { display: grid; gap: 12px; }
+.asocial .field > span { display: flex; align-items: center; gap: 8px; }
+.asocial .field > span img { width: 16px; height: 16px; opacity: 0.7; }
+.asocial input.is-bad { border-color: #a3261b; background: #fbeceb; }
+
 /* ---- save bar ---- */
 .savebar {
   position: fixed;
