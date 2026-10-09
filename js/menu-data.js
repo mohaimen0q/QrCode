@@ -148,7 +148,8 @@ window.VENECIA_MENU = [
       { img: "dessert-01", n: "تشيز كيك لوتس", p: 18, nEn: "Lotus Cheesecake" },
       { img: "dessert-02", n: "تشيز كيك بستاشيو", p: 18, nEn: "Pistachio Cheesecake" },
       { img: "dessert-03", n: "بانوفي", p: 18, nEn: "Banoffee" },
-      { img: "dessert-04", n: "ايس كريم", p: 15, d: "نكهتين", nEn: "Ice Cream", dEn: "Two flavours" }
+      { img: "dessert-04", n: "ايس كريم", p: 15, d: "نكهتين", nEn: "Ice Cream", dEn: "Two flavours" },
+      { img: "tiramisu", n: "تيراميسو", p: 25, nEn: "Tiramisu" }
     ]
   }
 ];
