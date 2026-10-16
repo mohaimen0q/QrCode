@@ -175,7 +175,9 @@ window.VENECIA_MENU = [
       { img: "drink-green-lemonade", n: "جرين ليمونادة", p: 3, nEn: "Green Lemonade" },
       { img: "drink-green-sour-cherry", n: "جرين كرز", p: 3, nEn: "Green Sour Cherry" },
       { img: "drink-green-passion-fruit", n: "جرين موكتيل باشن فروت", p: 3, nEn: "Green Mocktail Passion Fruit" },
-      { img: "drink-green-pomegranate-ginger", n: "جرين موكتيل رمان وزنجبيل", p: 3, nEn: "Green Mocktail Pomegranate & Ginger" }
+      { img: "drink-green-pomegranate-ginger", n: "جرين موكتيل رمان وزنجبيل", p: 3, nEn: "Green Mocktail Pomegranate & Ginger" },
+      { img: "drink-schweppes-pomegranate", n: "شويبس رمان", p: 3, nEn: "Schweppes Pomegranate", addToSaved: true },
+      { img: "drink-schweppes-pineapple", n: "شويبس أناناس", p: 3, nEn: "Schweppes Gold Pineapple", addToSaved: true }
     ]
   },
   {
