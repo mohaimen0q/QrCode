@@ -85,7 +85,15 @@
       .trim();
   }
 
-  function countLabel(n) {
+  // drink sections count "drinks" instead of "dishes"
+  var DRINK_SECTIONS = ["drinks", "juices", "hot-drinks"];
+  function countLabel(n, catId) {
+    if (DRINK_SECTIONS.indexOf(catId) >= 0) {
+      if (lang === "en") return n === 1 ? "1 drink" : n + " drinks";
+      if (n === 1) return "مشروب واحد";
+      if (n === 2) return "مشروبان";
+      return n + (n <= 10 ? " مشروبات" : " مشروباً");
+    }
     if (lang === "en") return n === 1 ? "1 dish" : n + " dishes";
     if (n === 1) return "طبق واحد";
     if (n === 2) return "طبقان";
@@ -211,7 +219,7 @@
       var link = el("a", "index__link");
       link.href = "#" + cat.id;
       link.appendChild(el("span", "index__name", title));
-      link.appendChild(el("span", "index__count", countLabel(items.length)));
+      link.appendChild(el("span", "index__count", countLabel(items.length, cat.id)));
       row.appendChild(link);
       indexList.appendChild(row);
 
@@ -226,7 +234,7 @@
       orn.height = 30;
       head.appendChild(orn);
       head.appendChild(el("h2", "cat__title", title));
-      head.appendChild(el("p", "cat__count", countLabel(items.length)));
+      head.appendChild(el("p", "cat__count", countLabel(items.length, cat.id)));
       section.appendChild(head);
 
       var list = el("ul", "cat__list cat__list--" + layout);
