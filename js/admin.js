@@ -171,10 +171,17 @@
       if (r.ok && Array.isArray(r.data)) {
         menu = r.data;
         sourceNote.hidden = true;
-        // sections added to the site after this menu was saved (marked addToSaved) join it, so they can be edited and saved
-        var ids = menu.map(function (cat) { return cat.id; });
+        // sections and dishes added to the site after this menu was saved (marked addToSaved) join it, so they can be edited and saved
         (window.VENECIA_MENU || []).forEach(function (cat) {
-          if (cat.addToSaved && ids.indexOf(cat.id) < 0) menu.push(JSON.parse(JSON.stringify(cat)));
+          var saved = menu.filter(function (c) { return c.id === cat.id; })[0];
+          if (!saved) {
+            if (cat.addToSaved) menu.push(JSON.parse(JSON.stringify(cat)));
+            return;
+          }
+          cat.items.forEach(function (item) {
+            var there = saved.items.some(function (s) { return s.n === item.n; });
+            if (item.addToSaved && !there) saved.items.push(JSON.parse(JSON.stringify(item)));
+          });
         });
       } else {
         // nothing saved yet: start from the menu that ships with the site

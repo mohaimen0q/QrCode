@@ -3,6 +3,8 @@
 // n = name, p = price in dinar, d = description (optional), d2 = second description line (optional)
 // nEn / dEn / d2En / titleEn = the same text in English, shown when the customer switches language
 // img = photo (optional): put the file at assets/dishes/<img>.jpg and add img: "<img>" to the dish.
+// addToSaved = a section or dish added after the menu was saved from the admin page; it is added to that saved menu
+// (a dish is matched by its Arabic name, so renaming it in the admin page brings this copy back)
 window.VENECIA_MENU = [
   {
     id: "soups",
@@ -27,7 +29,8 @@ window.VENECIA_MENU = [
       { img: "starters-06", n: "موزاريلا فينقرز", p: 30, d: "5 أصابع موزاريلا مقلية", nEn: "Mozzarella Fingers", dEn: "5 fried mozzarella fingers" },
       { img: "starters-07", n: "تشيكن ستريبس", p: 30, d: "قطع دجاج مقلية", nEn: "Chicken Strips", dEn: "Fried chicken pieces" },
       { img: "starters-08", n: "سردين مقلي", p: 25, nEn: "Fried Sardines" },
-      { img: "starters-09", n: "قرنيط", p: 38, d: "قطع القرنيط الطازج مع الخضروات والصوص الحار", nEn: "Octopus", dEn: "Fresh octopus pieces with vegetables and spicy sauce" }
+      { img: "starters-09", n: "قرنيط", p: 38, d: "قطع القرنيط الطازج مع الخضروات والصوص الحار", nEn: "Octopus", dEn: "Fresh octopus pieces with vegetables and spicy sauce" },
+      { n: "بطاطا مقلية", p: 10, nEn: "French Fries", addToSaved: true }
     ]
   },
   {
@@ -173,6 +176,28 @@ window.VENECIA_MENU = [
       { img: "drink-green-sour-cherry", n: "جرين كرز", p: 3, nEn: "Green Sour Cherry" },
       { img: "drink-green-passion-fruit", n: "جرين موكتيل باشن فروت", p: 3, nEn: "Green Mocktail Passion Fruit" },
       { img: "drink-green-pomegranate-ginger", n: "جرين موكتيل رمان وزنجبيل", p: 3, nEn: "Green Mocktail Pomegranate & Ginger" }
+    ]
+  },
+  {
+    id: "juices",
+    title: "العصائر",
+    titleEn: "Juices",
+    addToSaved: true,
+    items: [
+      { n: "عصير مانجا", p: 8, nEn: "Mango Juice" },
+      { n: "عصير فراولة", p: 8, nEn: "Strawberry Juice" },
+      { n: "عصير كوكتيل", p: 8, nEn: "Cocktail Juice" },
+      { n: "عصير ليمون ونعناع", p: 8, nEn: "Lemon & Mint Juice" }
+    ]
+  },
+  {
+    id: "hot-drinks",
+    title: "المشروبات الساخنة",
+    titleEn: "Hot Drinks",
+    addToSaved: true,
+    items: [
+      { n: "شاهي", p: 3, nEn: "Tea" },
+      { n: "قهوة عربية", p: 5, nEn: "Arabic Coffee" }
     ]
   }
 ];

@@ -136,10 +136,17 @@
       if (finished) return;
       finished = true;
       if (!Array.isArray(data) || !data.length) return done(fallback);
-      // sections added to the site after the menu was saved (marked addToSaved) are shown too
-      var ids = data.map(function (cat) { return cat.id; });
+      // sections and dishes added to the site after the menu was saved (marked addToSaved) are shown too
       fallback.forEach(function (cat) {
-        if (cat.addToSaved && ids.indexOf(cat.id) < 0) data.push(cat);
+        var saved = data.filter(function (c) { return c.id === cat.id; })[0];
+        if (!saved) {
+          if (cat.addToSaved) data.push(cat);
+          return;
+        }
+        cat.items.forEach(function (item) {
+          var there = saved.items.some(function (s) { return s.n === item.n; });
+          if (item.addToSaved && !there) saved.items.push(item);
+        });
       });
       done(data);
     }
