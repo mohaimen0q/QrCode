@@ -171,6 +171,11 @@
       if (r.ok && Array.isArray(r.data)) {
         menu = r.data;
         sourceNote.hidden = true;
+        // sections added to the site after this menu was saved (marked addToSaved) join it, so they can be edited and saved
+        var ids = menu.map(function (cat) { return cat.id; });
+        (window.VENECIA_MENU || []).forEach(function (cat) {
+          if (cat.addToSaved && ids.indexOf(cat.id) < 0) menu.push(JSON.parse(JSON.stringify(cat)));
+        });
       } else {
         // nothing saved yet: start from the menu that ships with the site
         menu = JSON.parse(JSON.stringify(window.VENECIA_MENU || []));

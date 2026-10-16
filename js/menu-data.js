@@ -151,5 +151,28 @@ window.VENECIA_MENU = [
       { img: "dessert-04", n: "ايس كريم", p: 15, d: "نكهتين", nEn: "Ice Cream", dEn: "Two flavours" },
       { img: "tiramisu", n: "تيراميسو", p: 25, nEn: "Tiramisu" }
     ]
+  },
+  {
+    // addToSaved: also shown when the menu was saved from the admin page before this section existed
+    id: "drinks",
+    title: "المشروبات",
+    titleEn: "Drinks",
+    addToSaved: true,
+    items: [
+      { img: "drink-7up", n: "سفن أب", p: 3, nEn: "7UP" },
+      { img: "drink-7up-zero", n: "سفن أب زيرو", p: 3, nEn: "7UP Zero Sugar" },
+      { img: "drink-pepsi", n: "بيبسي", p: 3, nEn: "Pepsi" },
+      { img: "drink-pepsi-diet", n: "بيبسي دايت", p: 3, nEn: "Diet Pepsi" },
+      { img: "drink-mirinda-orange", n: "ميرندا برتقال", p: 3, nEn: "Mirinda Orange" },
+      { img: "drink-mirinda-apple", n: "ميرندا تفاح أخضر", p: 3, nEn: "Mirinda Green Apple" },
+      { img: "drink-shani", n: "شاني", p: 3, nEn: "Shani" },
+      { img: "drink-bitter-soda", n: "بيتر صودا", p: 3, nEn: "Bitter Soda" },
+      { img: "drink-green-cola", n: "جرين كولا", p: 3, nEn: "Green Cola" },
+      { img: "drink-green-orange", n: "جرين برتقال", p: 3, nEn: "Green Orange" },
+      { img: "drink-green-lemonade", n: "جرين ليمونادة", p: 3, nEn: "Green Lemonade" },
+      { img: "drink-green-sour-cherry", n: "جرين كرز", p: 3, nEn: "Green Sour Cherry" },
+      { img: "drink-green-passion-fruit", n: "جرين موكتيل باشن فروت", p: 3, nEn: "Green Mocktail Passion Fruit" },
+      { img: "drink-green-pomegranate-ginger", n: "جرين موكتيل رمان وزنجبيل", p: 3, nEn: "Green Mocktail Pomegranate & Ginger" }
+    ]
   }
 ];

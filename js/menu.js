@@ -135,7 +135,13 @@
     function finish(data) {
       if (finished) return;
       finished = true;
-      done(Array.isArray(data) && data.length ? data : fallback);
+      if (!Array.isArray(data) || !data.length) return done(fallback);
+      // sections added to the site after the menu was saved (marked addToSaved) are shown too
+      var ids = data.map(function (cat) { return cat.id; });
+      fallback.forEach(function (cat) {
+        if (cat.addToSaved && ids.indexOf(cat.id) < 0) data.push(cat);
+      });
+      done(data);
     }
     if (!window.fetch || location.protocol === "file:") return finish(null);
     setTimeout(function () { finish(null); }, 3500); // slow connection: show the built-in menu instead of waiting
