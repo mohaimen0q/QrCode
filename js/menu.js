@@ -87,21 +87,6 @@
       .trim();
   }
 
-  // drink sections count "drinks" instead of "dishes"
-  var DRINK_SECTIONS = ["drinks", "juices", "hot-drinks"];
-  function countLabel(n, catId) {
-    if (DRINK_SECTIONS.indexOf(catId) >= 0) {
-      if (lang === "en") return n === 1 ? "1 drink" : n + " drinks";
-      if (n === 1) return "مشروب واحد";
-      if (n === 2) return "مشروبان";
-      return n + (n <= 10 ? " مشروبات" : " مشروباً");
-    }
-    if (lang === "en") return n === 1 ? "1 dish" : n + " dishes";
-    if (n === 1) return "طبق واحد";
-    if (n === 2) return "طبقان";
-    return n + (n <= 10 ? " أطباق" : " طبقاً");
-  }
-
   // A photo is either a full address (uploaded from the admin page) or the name of a file in assets/dishes.
   function photoUrl(img) {
     return /^(https?:)?\//.test(img) ? img : "assets/dishes/" + img + ".jpg";
@@ -221,7 +206,6 @@
       var link = el("a", "index__link");
       link.href = "#" + cat.id;
       link.appendChild(el("span", "index__name", title));
-      link.appendChild(el("span", "index__count", countLabel(items.length, cat.id)));
       row.appendChild(link);
       indexList.appendChild(row);
 
