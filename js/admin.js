@@ -263,7 +263,7 @@
   }
 
   function renderDish(cat, item, i) {
-    var row = el("li", "adish" + (item.hidden ? " is-hidden" : ""));
+    var row = el("li", "adish" + (item.hidden ? " is-hidden" : "") + (item.unavailable ? " is-unavailable" : ""));
 
     var photo = el("button", "adish__photo");
     photo.type = "button";
@@ -316,7 +316,23 @@
     });
     show.appendChild(box);
     show.appendChild(el("span", null, "ظاهر للزبائن"));
-    tools.appendChild(show);
+    // still listed, but marked "غير متاح" on the menu
+    var offLabel = el("label", "check");
+    var offBox = el("input");
+    offBox.type = "checkbox";
+    offBox.checked = item.unavailable === true;
+    offBox.addEventListener("change", function () {
+      checkpoint();
+      if (offBox.checked) item.unavailable = true; else delete item.unavailable;
+      row.classList.toggle("is-unavailable", offBox.checked);
+      setDirty(true);
+    });
+    offLabel.appendChild(offBox);
+    offLabel.appendChild(el("span", null, "غير متاح حالياً"));
+    var checks = el("div", "adish__checks");
+    checks.appendChild(show);
+    checks.appendChild(offLabel);
+    tools.appendChild(checks);
     if (item.img) {
       tools.appendChild(iconBtn("حذف الصورة", "حذف الصورة", function () {
         checkpoint();

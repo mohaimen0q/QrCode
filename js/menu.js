@@ -21,6 +21,7 @@
       sections: "أقسام القائمة",
       allSections: "عرض كل الأقسام",
       close: "إغلاق",
+      unavailable: "غير متاح",
       toTop: "العودة إلى أعلى القائمة",
       currency: "دينار",
       welcome: "أهلاً بكم في فينيسيا",
@@ -45,6 +46,7 @@
       sections: "Menu sections",
       allSections: "Show all sections",
       close: "Close",
+      unavailable: "Unavailable",
       toTop: "Back to the top of the menu",
       currency: "LYD",
       welcome: "Welcome to Venecia",
@@ -234,7 +236,6 @@
       orn.height = 30;
       head.appendChild(orn);
       head.appendChild(el("h2", "cat__title", title));
-      head.appendChild(el("p", "cat__count", countLabel(items.length, cat.id)));
       section.appendChild(head);
 
       var list = el("ul", "cat__list cat__list--" + layout);
@@ -242,14 +243,21 @@
         var name = pick(item.n, item.nEn);
         var d = item.d ? pick(item.d, item.dEn) : "";
         var d2 = item.d2 ? pick(item.d2, item.d2En) : "";
-        var dish = el("li", "dish");
+        var off = item.unavailable === true;
+        var dish = el("li", "dish" + (off ? " is-unavailable" : ""));
+        // tapping a dish opens its close-up
+        dish.item = item;
+        dish.tabIndex = 0;
+        dish.setAttribute("aria-haspopup", "dialog");
         // searchable in both languages whichever one is showing
         dish.dataset.q = normalize([
           item.n, item.d, item.d2, cat.title,
           item.nEn || known[item.n], item.dEn || known[item.d], item.d2En || known[item.d2], cat.titleEn || known[cat.title]
         ].filter(Boolean).join(" "));
 
-        if (item.img && layout !== "text") {
+        var withPhoto = item.img && layout !== "text";
+        if (withPhoto) {
+          var media = el("div", "dish__media");
           var photo = el("img", "dish__photo");
           photo.src = photoUrl(item.img);
           photo.alt = name;
@@ -257,8 +265,10 @@
           photo.width = 96;
           photo.height = 96;
           // a missing file simply leaves a text-only row
-          photo.addEventListener("error", function () { photo.remove(); });
-          dish.appendChild(photo);
+          photo.addEventListener("error", function () { media.remove(); });
+          media.appendChild(photo);
+          if (off) media.appendChild(el("span", "dish__off", TEXT[lang].unavailable));
+          dish.appendChild(media);
         }
 
         var body = el("div", "dish__body");
@@ -270,6 +280,7 @@
         price.appendChild(el("span", null, TEXT[lang].currency));
         top.appendChild(price);
         body.appendChild(top);
+        if (off && !withPhoto) body.appendChild(el("p", "dish__badge", TEXT[lang].unavailable));
         if (d) body.appendChild(el("p", "dish__desc", d));
         if (d2) body.appendChild(el("p", "dish__desc", d2));
         dish.appendChild(body);
@@ -335,6 +346,67 @@
     empty.hidden = any || !sections.length;
     onScroll();
   }
+
+  // ---- Dish close-up: photo, name, price and description ----
+  var sheet = document.getElementById("sheet");
+  var sheetMedia = document.getElementById("sheetMedia");
+  var sheetDesc = document.getElementById("sheetDesc");
+  var sheetOpen = false;
+  function openDish(item) {
+    var name = pick(item.n, item.nEn);
+    sheetMedia.textContent = "";
+    sheetMedia.hidden = !item.img;
+    if (item.img) {
+      var img = el("img");
+      img.src = photoUrl(item.img);
+      img.alt = name;
+      img.addEventListener("error", function () { sheetMedia.hidden = true; });
+      sheetMedia.appendChild(img);
+    }
+    document.getElementById("sheetName").textContent = name;
+    var price = document.getElementById("sheetPrice");
+    price.textContent = "";
+    price.appendChild(el("b", null, item.p));
+    price.appendChild(el("span", null, TEXT[lang].currency));
+    var off = document.getElementById("sheetOff");
+    off.textContent = TEXT[lang].unavailable;
+    off.hidden = item.unavailable !== true;
+    sheetDesc.textContent = "";
+    [[item.d, item.dEn], [item.d2, item.d2En]].forEach(function (line) {
+      if (line[0]) sheetDesc.appendChild(el("p", null, pick(line[0], line[1])));
+    });
+    document.getElementById("closeSheet").setAttribute("aria-label", TEXT[lang].close);
+    if (sheet.showModal) sheet.showModal(); else sheet.setAttribute("open", "");
+    sheet.scrollTop = 0;
+    root.classList.add("is-locked");
+    sheetOpen = true;
+    // the phone's back button closes the close-up instead of leaving the menu
+    history.pushState({ sheet: true }, "");
+  }
+  function hideSheet() {
+    if (!sheetOpen) return;
+    sheetOpen = false;
+    if (sheet.close) sheet.close(); else sheet.removeAttribute("open");
+    root.classList.remove("is-locked");
+  }
+  function closeSheet() {
+    if (sheetOpen && history.state && history.state.sheet) history.back(); else hideSheet();
+  }
+  window.addEventListener("popstate", hideSheet);
+  document.getElementById("closeSheet").addEventListener("click", closeSheet);
+  sheet.addEventListener("cancel", function (e) { e.preventDefault(); closeSheet(); });
+  // a tap outside the card (on the dimmed page) closes it too
+  sheet.addEventListener("click", function (e) { if (e.target === sheet) closeSheet(); });
+  menu.addEventListener("click", function (e) {
+    var dish = e.target.closest(".dish");
+    if (dish && dish.item) openDish(dish.item);
+  });
+  menu.addEventListener("keydown", function (e) {
+    if ((e.key === "Enter" || e.key === " ") && e.target.item) {
+      e.preventDefault();
+      openDish(e.target.item);
+    }
+  });
 
   // ---- Full category list ----
   function closeIndex() {

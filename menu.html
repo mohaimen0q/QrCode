@@ -129,6 +129,19 @@
     <ul class="index__list" id="indexList"></ul>
   </dialog>
 
+  <dialog class="closeup" id="sheet" aria-labelledby="sheetName">
+    <button class="closeup__close" id="closeSheet" type="button">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <div class="closeup__media" id="sheetMedia"></div>
+    <div class="closeup__body">
+      <h2 class="closeup__name" id="sheetName"></h2>
+      <p class="closeup__price" id="sheetPrice"></p>
+      <p class="closeup__off" id="sheetOff" hidden></p>
+      <div class="closeup__desc" id="sheetDesc"></div>
+    </div>
+  </dialog>
+
   <script src="js/menu-data.js"></script>
   <script src="js/menu.js"></script>
 </body>
