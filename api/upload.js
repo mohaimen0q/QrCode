@@ -7,7 +7,7 @@ const MAX_BYTES = 1500 * 1024; // the admin page shrinks photos before sending, 
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ error: "method" });
-  if (!auth.isAuthed(req)) return res.status(401).json({ error: "auth" });
+  if (!(await auth.isAuthed(req))) return res.status(401).json({ error: "auth" });
   if (!store.ready()) return res.status(503).json({ error: "no_storage" });
 
   const match = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec((req.body || {}).dataUrl || "");

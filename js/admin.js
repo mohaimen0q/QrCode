@@ -125,6 +125,7 @@
     logoutBtn.hidden = true;
     loginView.hidden = false;
     loginError.hidden = !message;
+    loginError.classList.remove("is-ok");
     loginError.textContent = message || "";
   }
 
@@ -160,6 +161,131 @@
     if (dirty && !confirm("لديك تغييرات غير محفوظة. هل تريد الخروج بدون حفظ؟")) return;
     setDirty(false);
     showLogin();
+  });
+
+  // ---------- Forgot password / change password (both confirmed by an emailed code) ----------
+  var ACCOUNT_ERRORS = {
+    wrong_current: "كلمة المرور الحالية غير صحيحة.",
+    short: "كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل.",
+    long: "كلمة المرور الجديدة طويلة جداً.",
+    wrong_code: "الرمز غير صحيح. تحقق منه وحاول مرة أخرى.",
+    expired: "انتهت صلاحية الرمز أو استُخدم عدداً كبيراً من المرات. اطلب رمزاً جديداً.",
+    wait: "أُرسل رمز قبل قليل. انتظر دقيقة ثم حاول مرة أخرى.",
+    mail_failed: "تعذّر إرسال البريد. حاول لاحقاً.",
+    mail_not_configured: "إرسال البريد غير مفعّل بعد على الخادم (RESEND_API_KEY).",
+    no_email: "بريد الإدارة غير مضبوط بعد على الخادم (ADMIN_EMAIL).",
+    not_configured: "لوحة الإدارة غير مفعّلة بالكامل على الخادم بعد."
+  };
+  function accountError(r) {
+    return (r.data && ACCOUNT_ERRORS[r.data.error]) || "تعذّر تنفيذ الطلب. حاول مرة أخرى.";
+  }
+  function showError(node, text) {
+    node.textContent = text || "";
+    node.hidden = !text;
+  }
+
+  var resetForm = document.getElementById("resetForm");
+  var resetError = document.getElementById("resetError");
+  var resetSubmit = document.getElementById("resetSubmit");
+  var resetStep = 1;
+  function showReset(on) {
+    loginForm.hidden = on;
+    resetForm.hidden = !on;
+    resetStep = 1;
+    document.getElementById("resetStep1").hidden = false;
+    document.getElementById("resetStep2").hidden = true;
+    resetSubmit.textContent = "إرسال الرمز";
+    ["resetCode", "resetNext", "resetNext2"].forEach(function (id) { document.getElementById(id).value = ""; });
+    showError(resetError, "");
+    (on ? document.getElementById("resetEmail") : document.getElementById("username")).focus();
+  }
+  document.getElementById("forgotBtn").addEventListener("click", function () { showReset(true); });
+  document.getElementById("resetBack").addEventListener("click", function () { showReset(false); });
+  resetForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    showError(resetError, "");
+    var body;
+    if (resetStep === 1) {
+      var email = document.getElementById("resetEmail").value.trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return showError(resetError, "أدخل بريداً إلكترونياً صحيحاً.");
+      body = { action: "reset-start", email: email };
+    } else {
+      var next = document.getElementById("resetNext").value;
+      if (next !== document.getElementById("resetNext2").value) return showError(resetError, "كلمتا المرور غير متطابقتين.");
+      body = { action: "reset-confirm", code: document.getElementById("resetCode").value, next: next };
+    }
+    resetSubmit.disabled = true;
+    api("/api/account", "POST", body).then(function (r) {
+      resetSubmit.disabled = false;
+      if (!r.ok) return showError(resetError, accountError(r));
+      if (resetStep === 1) {
+        resetStep = 2;
+        document.getElementById("resetStep1").hidden = true;
+        document.getElementById("resetStep2").hidden = false;
+        resetSubmit.textContent = "تغيير كلمة المرور";
+        document.getElementById("resetCode").focus();
+        return;
+      }
+      showReset(false);
+      showLogin("");
+      loginError.hidden = false;
+      loginError.classList.add("is-ok");
+      loginError.textContent = "تم تغيير كلمة المرور. سجّل الدخول بكلمة المرور الجديدة.";
+    }).catch(function () {
+      resetSubmit.disabled = false;
+      showError(resetError, "تعذّر الاتصال بالخادم.");
+    });
+  });
+
+  var changeForm = document.getElementById("changeForm");
+  var changeError = document.getElementById("changeError");
+  var changeSubmit = document.getElementById("changeSubmit");
+  var changeCancel = document.getElementById("changeCancel");
+  var changeStep = 1;
+  function resetChange() {
+    changeStep = 1;
+    document.getElementById("changeStep1").hidden = false;
+    document.getElementById("changeStep2").hidden = true;
+    changeSubmit.textContent = "إرسال رمز التأكيد";
+    changeCancel.hidden = true;
+    ["changeCurrent", "changeNext", "changeNext2", "changeCode"].forEach(function (id) { document.getElementById(id).value = ""; });
+    showError(changeError, "");
+  }
+  changeCancel.addEventListener("click", resetChange);
+  changeForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    showError(changeError, "");
+    var body;
+    if (changeStep === 1) {
+      var next = document.getElementById("changeNext").value;
+      if (next !== document.getElementById("changeNext2").value) return showError(changeError, "كلمتا المرور الجديدتان غير متطابقتين.");
+      body = { action: "change-start", current: document.getElementById("changeCurrent").value, next: next };
+    } else {
+      body = { action: "change-confirm", code: document.getElementById("changeCode").value };
+    }
+    changeSubmit.disabled = true;
+    api("/api/account", "POST", body).then(function (r) {
+      changeSubmit.disabled = false;
+      if (r.status === 401) return showLogin("انتهت الجلسة. سجّل الدخول من جديد.");
+      if (!r.ok) return showError(changeError, accountError(r));
+      if (changeStep === 1) {
+        changeStep = 2;
+        document.getElementById("changeStep1").hidden = true;
+        document.getElementById("changeStep2").hidden = false;
+        changeSubmit.textContent = "تأكيد التغيير";
+        changeCancel.hidden = false;
+        document.getElementById("changeCode").focus();
+        return toast("أرسلنا رمز التأكيد إلى بريد الإدارة.");
+      }
+      // this device stays signed in with a fresh session; all others are signed out
+      token = r.data.token;
+      try { sessionStorage.setItem(TOKEN_KEY, token); } catch (err) {}
+      resetChange();
+      toast("تم تغيير كلمة المرور، وسُجّل الخروج من الأجهزة الأخرى.");
+    }).catch(function () {
+      changeSubmit.disabled = false;
+      showError(changeError, "تعذّر الاتصال بالخادم.");
+    });
   });
 
   // ---------- Load ----------

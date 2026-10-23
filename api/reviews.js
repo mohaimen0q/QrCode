@@ -95,7 +95,7 @@ module.exports = async (req, res) => {
   }
 
   // everything below is the admin page
-  if (!auth.isAuthed(req)) return res.status(401).json({ error: "auth" });
+  if (!(await auth.isAuthed(req))) return res.status(401).json({ error: "auth" });
   if (!store.ready()) return res.status(503).json({ error: "no_storage" });
 
   if (req.method === "GET") {

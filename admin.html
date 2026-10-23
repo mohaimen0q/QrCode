@@ -42,6 +42,38 @@
       </label>
       <p class="login__error" id="loginError" role="alert" hidden></p>
       <button class="abtn abtn--primary" type="submit">دخول</button>
+      <button class="login__link" id="forgotBtn" type="button">نسيت كلمة المرور؟</button>
+    </form>
+
+    <!-- Forgot password: a code is emailed, then a new password is set with it -->
+    <form class="login__card" id="resetForm" hidden novalidate>
+      <img src="assets/ornament.svg" alt="" width="150" height="21">
+      <h1>إعادة تعيين كلمة المرور</h1>
+      <div id="resetStep1">
+        <p class="login__lead">أدخل البريد الإلكتروني الخاص بالإدارة، وسنرسل إليه رمزاً من 6 أرقام.</p>
+        <label class="field">
+          <span>البريد الإلكتروني</span>
+          <input id="resetEmail" type="email" autocomplete="email" dir="ltr">
+        </label>
+      </div>
+      <div id="resetStep2" hidden>
+        <p class="login__lead">إذا كان البريد صحيحاً فقد وصله رمز صالح لمدة 10 دقائق. أدخله مع كلمة المرور الجديدة.</p>
+        <label class="field">
+          <span>الرمز</span>
+          <input id="resetCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" dir="ltr">
+        </label>
+        <label class="field">
+          <span>كلمة المرور الجديدة (8 أحرف على الأقل)</span>
+          <input id="resetNext" type="password" autocomplete="new-password">
+        </label>
+        <label class="field">
+          <span>تأكيد كلمة المرور الجديدة</span>
+          <input id="resetNext2" type="password" autocomplete="new-password">
+        </label>
+      </div>
+      <p class="login__error" id="resetError" role="alert" hidden></p>
+      <button class="abtn abtn--primary" id="resetSubmit" type="submit">إرسال الرمز</button>
+      <button class="login__link" id="resetBack" type="button">العودة لتسجيل الدخول</button>
     </form>
   </main>
 
@@ -52,6 +84,42 @@
       <p>عدّل الأقسام والأصناف والأسعار والصور، ثم اضغط «حفظ التغييرات» لتظهر للزبائن.</p>
     </div>
     <p class="editor__note" id="sourceNote" hidden></p>
+
+    <details class="acat" id="accountCard">
+      <summary class="acat__head">
+        <span class="acat__title">الحساب وكلمة المرور</span>
+      </summary>
+      <div class="acat__body">
+        <form class="aacc" id="changeForm" novalidate>
+          <p class="asocial__lead">لتغيير كلمة المرور نرسل رمز تأكيد من 6 أرقام إلى بريد الإدارة. بعد التغيير يُسجَّل الخروج من كل الأجهزة الأخرى.</p>
+          <div id="changeStep1">
+            <label class="field">
+              <span>كلمة المرور الحالية</span>
+              <input id="changeCurrent" type="password" autocomplete="current-password">
+            </label>
+            <label class="field">
+              <span>كلمة المرور الجديدة (8 أحرف على الأقل)</span>
+              <input id="changeNext" type="password" autocomplete="new-password">
+            </label>
+            <label class="field">
+              <span>تأكيد كلمة المرور الجديدة</span>
+              <input id="changeNext2" type="password" autocomplete="new-password">
+            </label>
+          </div>
+          <div id="changeStep2" hidden>
+            <label class="field">
+              <span>رمز التأكيد المرسل إلى بريدك</span>
+              <input id="changeCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" dir="ltr">
+            </label>
+          </div>
+          <p class="login__error" id="changeError" role="alert" hidden></p>
+          <div class="aacc__buttons">
+            <button class="abtn abtn--primary" id="changeSubmit" type="submit">إرسال رمز التأكيد</button>
+            <button class="abtn" id="changeCancel" type="button" hidden>إلغاء</button>
+          </div>
+        </form>
+      </div>
+    </details>
 
     <details class="acat" id="reviewsCard">
       <summary class="acat__head">

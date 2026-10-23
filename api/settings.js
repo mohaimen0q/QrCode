@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
   }
 
   if (req.method === "PUT") {
-    if (!auth.isAuthed(req)) return res.status(401).json({ error: "auth" });
+    if (!(await auth.isAuthed(req))) return res.status(401).json({ error: "auth" });
     if (!store.ready()) return res.status(503).json({ error: "no_storage" });
     const settings = clean(req.body);
     if (!settings) return res.status(400).json({ error: "invalid" });

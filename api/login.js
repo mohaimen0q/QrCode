@@ -5,10 +5,10 @@ module.exports = async (req, res) => {
   if (!auth.configured()) return res.status(503).json({ error: "not_configured" });
 
   const body = req.body || {};
-  if (!auth.checkLogin(body.username || "", body.password || "")) {
+  if (!(await auth.checkLogin(body.username || "", body.password || ""))) {
     // slow down guessing a little
     await new Promise((r) => setTimeout(r, 600));
     return res.status(401).json({ error: "invalid" });
   }
-  res.status(200).json({ token: auth.issueToken() });
+  res.status(200).json({ token: await auth.issueToken() });
 };
