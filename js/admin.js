@@ -116,8 +116,38 @@
     if (dirty) { e.preventDefault(); e.returnValue = ""; }
   });
 
+  // ---------- Show / hide what is typed in password fields (an eye button inside each) ----------
+  var EYE = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
+  var EYE_OFF = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 4l16 16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  var eyes = [];
+  function setShown(input, button, shown) {
+    input.type = shown ? "text" : "password";
+    button.innerHTML = shown ? EYE_OFF : EYE;
+    button.setAttribute("aria-label", shown ? "إخفاء كلمة المرور" : "إظهار كلمة المرور");
+    button.setAttribute("aria-pressed", shown ? "true" : "false");
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('input[type="password"]'), function (input) {
+    var wrap = el("span", "pw");
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+    var button = el("button", "pw__eye");
+    button.type = "button";
+    setShown(input, button, false);
+    button.addEventListener("click", function () {
+      setShown(input, button, input.type === "password");
+      input.focus();
+    });
+    wrap.appendChild(button);
+    eyes.push([input, button]);
+  });
+  // every form starts hidden again, so a password is never left showing
+  function hidePasswords() {
+    eyes.forEach(function (pair) { setShown(pair[0], pair[1], false); });
+  }
+
   // ---------- Sign in / out ----------
   function showLogin(message) {
+    hidePasswords();
     token = null;
     try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
     editorView.hidden = true;
@@ -189,6 +219,7 @@
   var resetSubmit = document.getElementById("resetSubmit");
   var resetStep = 1;
   function showReset(on) {
+    hidePasswords();
     loginForm.hidden = on;
     resetForm.hidden = !on;
     resetStep = 1;
@@ -243,6 +274,7 @@
   var changeCancel = document.getElementById("changeCancel");
   var changeStep = 1;
   function resetChange() {
+    hidePasswords();
     changeStep = 1;
     document.getElementById("changeStep1").hidden = false;
     document.getElementById("changeStep2").hidden = true;
