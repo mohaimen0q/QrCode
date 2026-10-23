@@ -496,7 +496,8 @@ img { display: block; max-width: 100%; height: auto; }
 .stars .is-on { color: #c8962c; }
 .score { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 6px 0 0; }
 .score__avg { font-size: 1.375rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-.score__count, .score__none { color: var(--muted); font-size: 0.9375rem; font-weight: 300; }
+.score:empty { display: none; }
+.score__count { color: var(--muted); font-size: 0.9375rem; font-weight: 300; }
 .reviews { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
 .reviews__title { margin: 0; font-size: 1.25rem; font-weight: 700; }
 .reviews__list { margin: 18px 0 0; padding: 0; list-style: none; }

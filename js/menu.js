@@ -31,11 +31,10 @@
       yourComment: "تعليقك (اختياري)",
       send: "إرسال التقييم",
       thanks: "شكراً لتقييمك!",
-      sent: "وصلنا تقييمك، وسيظهر هنا بعد مراجعته.",
+      sent: "وصلنا تقييمك.",
       limit: "وصلت إلى الحد اليومي للتقييمات. حاول غداً.",
       full: "لا يمكن استقبال تقييمات الآن. حاول لاحقاً.",
       failed: "تعذّر الإرسال. حاول مرة أخرى.",
-      noReviews: "لا توجد تقييمات بعد. كن أول من يقيّم!",
       guest: "زبون",
       toTop: "العودة إلى أعلى القائمة",
       currency: "دينار",
@@ -71,11 +70,10 @@
       yourComment: "Your comment (optional)",
       send: "Send review",
       thanks: "Thank you for your review!",
-      sent: "We received it. It will appear here once it has been checked.",
+      sent: "We received your review.",
       limit: "You've reached today's review limit. Try again tomorrow.",
       full: "Reviews can't be received right now. Try again later.",
       failed: "Couldn't send. Please try again.",
-      noReviews: "No reviews yet. Be the first!",
       guest: "Guest",
       toTop: "Back to the top of the menu",
       currency: "LYD",
@@ -483,10 +481,7 @@
 
   function summaryLine(bucket) {
     var line = el("p", "score");
-    if (!bucket || !bucket.n) {
-      line.appendChild(el("span", "score__none", TEXT[lang].noReviews));
-      return line;
-    }
+    if (!bucket || !bucket.n) return line; // no approved reviews yet: nothing to show
     var avg = Math.round((bucket.sum / bucket.n) * 10) / 10;
     line.appendChild(el("b", "score__avg", avg.toFixed(1)));
     line.appendChild(starsRow(avg));
