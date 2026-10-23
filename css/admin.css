@@ -224,6 +224,30 @@
 .check input { width: 20px; height: 20px; accent-color: var(--ink); }
 
 .editor__sub { margin: 24px 0 12px; font-size: 1.25rem; }
+
+/* ---- reviews ---- */
+.arev__bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 18px; }
+.arev__filter { flex: 0 1 240px; }
+.arev__bar .check { margin: 0 0 12px; }
+.arev__actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.arev__usage { margin: 10px 0 0; color: var(--muted); font-size: 0.875rem; }
+.arev__list { margin: 8px 0 0; padding: 0; list-style: none; }
+.arev {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 12px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+.arev > input { width: 20px; height: 20px; margin-top: 3px; accent-color: var(--ink); }
+.arev__head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.arev__stars { color: #c8962c; letter-spacing: 1px; }
+.arev__state { padding: 0 8px; font-size: 0.8125rem; color: #7a4d00; background: #fbf0dc; border-radius: 999px; }
+.arev.is-approved .arev__state { color: #1d5a2c; background: #e3f2e6; }
+.arev__meta { margin: 2px 0 0; color: var(--muted); font-size: 0.875rem; }
+.arev__text { margin: 6px 0 0; line-height: 1.6; overflow-wrap: anywhere; }
+.arev__tools { grid-column: 2; display: flex; gap: 6px; }
+.arev__empty { padding: 16px 0; color: var(--muted); }
 .asocial__lead { margin: 0 0 14px; color: var(--muted); font-size: 0.9375rem; font-weight: 300; }
 .asocial { display: grid; gap: 12px; }
 .asocial .field > span { display: flex; align-items: center; gap: 8px; }

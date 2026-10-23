@@ -216,6 +216,7 @@
       logoutBtn.hidden = false;
       setDirty(false);
       render();
+      loadReviews();
     }).catch(function () {
       showLogin("تعذّر تحميل القائمة. حاول مرة أخرى.");
     });
@@ -573,6 +574,123 @@
       toast("تعذّر الاتصال بالخادم.", true);
     });
   });
+
+  // ---------- Reviews ----------
+  // Customers' reviews arrive hidden; the admin shows, hides or deletes them (one at a time or many).
+  var reviews = [];
+  var reviewsMax = 0;
+  var picked = {};
+  var reviewsList = document.getElementById("reviewsList");
+  var reviewsFilter = document.getElementById("reviewsFilter");
+  var reviewsAll = document.getElementById("reviewsAll");
+
+  function loadReviews() {
+    return api("/api/reviews?all=1").then(function (r) {
+      if (!r.ok) {
+        reviewsList.textContent = "";
+        reviewsList.appendChild(el("li", "arev__empty", r.status === 401 ? "سجّل الدخول من جديد لعرض التقييمات." : "تعذّر تحميل التقييمات."));
+        return;
+      }
+      reviews = r.data.reviews || [];
+      reviewsMax = r.data.max || 0;
+      var still = {};
+      reviews.forEach(function (x) { if (picked[x.id]) still[x.id] = true; });
+      picked = still;
+      renderReviews();
+    });
+  }
+
+  function shownReviews() {
+    var f = reviewsFilter.value;
+    return reviews.filter(function (x) { return f === "all" || (f === "approved") === Boolean(x.approved); });
+  }
+
+  function reviewWhen(at) {
+    var d = new Date(at);
+    return d.toLocaleDateString("ar-LY-u-nu-latn") + " " + d.toLocaleTimeString("ar-LY-u-nu-latn", { hour: "2-digit", minute: "2-digit" });
+  }
+
+  function renderReviews() {
+    var pending = reviews.filter(function (x) { return !x.approved; }).length;
+    document.getElementById("reviewsCount").textContent = pending ? pending + " بانتظار الموافقة" : reviews.length + " تقييم";
+    document.getElementById("reviewsUsage").textContent = "المخزّن: " + reviews.length + " من " + reviewsMax +
+      (reviews.length >= reviewsMax ? " — الصندوق ممتلئ، احذف بعض التقييمات ليستقبل الجديد." : "");
+    var list = shownReviews();
+    reviewsList.textContent = "";
+    if (!list.length) reviewsList.appendChild(el("li", "arev__empty", "لا توجد تقييمات هنا."));
+    list.forEach(function (x) {
+      var row = el("li", "arev" + (x.approved ? " is-approved" : ""));
+      var box = el("input");
+      box.type = "checkbox";
+      box.checked = Boolean(picked[x.id]);
+      box.setAttribute("aria-label", "تحديد");
+      box.addEventListener("change", function () {
+        if (box.checked) picked[x.id] = true; else delete picked[x.id];
+        syncPicked();
+      });
+      row.appendChild(box);
+
+      var main = el("div", "arev__main");
+      var head = el("div", "arev__head");
+      head.appendChild(el("span", "arev__stars", "★★★★★".slice(0, x.stars) + "☆☆☆☆☆".slice(0, 5 - x.stars)));
+      head.appendChild(el("b", null, x.target === "site" ? "المطعم" : (x.targetName || "صنف")));
+      head.appendChild(el("span", "arev__state", x.approved ? "ظاهر" : "بانتظار الموافقة"));
+      main.appendChild(head);
+      main.appendChild(el("p", "arev__meta", (x.name || "بدون اسم") + " · " + reviewWhen(x.at)));
+      if (x.text) main.appendChild(el("p", "arev__text", x.text));
+      row.appendChild(main);
+
+      var tools = el("div", "arev__tools");
+      var toggle = el("button", "tbtn", x.approved ? "إخفاء" : "إظهار");
+      toggle.type = "button";
+      toggle.addEventListener("click", function () { reviewAction([x.id], x.approved ? "hide" : "approve"); });
+      tools.appendChild(toggle);
+      var del = el("button", "tbtn tbtn--danger", "حذف");
+      del.type = "button";
+      del.addEventListener("click", function () { reviewAction([x.id], "delete"); });
+      tools.appendChild(del);
+      row.appendChild(tools);
+      reviewsList.appendChild(row);
+    });
+    syncPicked();
+  }
+
+  function pickedIds() {
+    return shownReviews().map(function (x) { return x.id; }).filter(function (id) { return picked[id]; });
+  }
+
+  function syncPicked() {
+    var shown = shownReviews();
+    var ids = pickedIds();
+    reviewsAll.checked = shown.length > 0 && ids.length === shown.length;
+    ["reviewsApprove", "reviewsHide", "reviewsDelete"].forEach(function (id) {
+      document.getElementById(id).disabled = !ids.length;
+    });
+  }
+
+  function reviewAction(ids, kind) {
+    if (!ids.length) return;
+    if (kind === "delete" && !confirm(ids.length === 1 ? "حذف هذا التقييم نهائياً؟" : "حذف " + ids.length + " تقييمات نهائياً؟")) return;
+    var req = kind === "delete"
+      ? api("/api/reviews", "DELETE", { ids: ids })
+      : api("/api/reviews", "PATCH", { ids: ids, approved: kind === "approve" });
+    req.then(function (r) {
+      if (r.status === 401) return showLogin("انتهت الجلسة. سجّل الدخول من جديد.");
+      if (!r.ok) return toast("تعذّر تنفيذ الطلب. حاول مرة أخرى.", true);
+      ids.forEach(function (id) { delete picked[id]; });
+      toast(kind === "delete" ? "تم الحذف." : kind === "approve" ? "أصبحت ظاهرة للزبائن." : "تم إخفاؤها عن الزبائن.");
+      return loadReviews();
+    }).catch(function () { toast("تعذّر الاتصال بالخادم.", true); });
+  }
+
+  reviewsFilter.addEventListener("change", renderReviews);
+  reviewsAll.addEventListener("change", function () {
+    shownReviews().forEach(function (x) { if (reviewsAll.checked) picked[x.id] = true; else delete picked[x.id]; });
+    renderReviews();
+  });
+  document.getElementById("reviewsApprove").addEventListener("click", function () { reviewAction(pickedIds(), "approve"); });
+  document.getElementById("reviewsHide").addEventListener("click", function () { reviewAction(pickedIds(), "hide"); });
+  document.getElementById("reviewsDelete").addEventListener("click", function () { reviewAction(pickedIds(), "delete"); });
 
   // ---------- Start ----------
   if (token) openEditor(); else showLogin();

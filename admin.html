@@ -53,6 +53,34 @@
     </div>
     <p class="editor__note" id="sourceNote" hidden></p>
 
+    <details class="acat" id="reviewsCard">
+      <summary class="acat__head">
+        <span class="acat__title">التقييمات</span>
+        <span class="acat__count" id="reviewsCount"></span>
+      </summary>
+      <div class="acat__body">
+        <p class="asocial__lead">تصل كل تقييمات الزبائن إلى هنا أولاً، ولا تظهر في القائمة إلا بعد أن تضغط «إظهار». الإظهار والإخفاء والحذف تُنفَّذ فوراً بدون زر الحفظ.</p>
+        <div class="arev__bar">
+          <label class="field arev__filter">
+            <span>عرض</span>
+            <select id="reviewsFilter">
+              <option value="pending">بانتظار الموافقة</option>
+              <option value="approved">الظاهرة للزبائن</option>
+              <option value="all">كل التقييمات</option>
+            </select>
+          </label>
+          <label class="check"><input type="checkbox" id="reviewsAll"><span>تحديد الكل</span></label>
+        </div>
+        <div class="arev__actions">
+          <button class="tbtn" id="reviewsApprove" type="button" disabled>إظهار المحدد</button>
+          <button class="tbtn" id="reviewsHide" type="button" disabled>إخفاء المحدد</button>
+          <button class="tbtn tbtn--danger" id="reviewsDelete" type="button" disabled>حذف المحدد</button>
+        </div>
+        <p class="arev__usage" id="reviewsUsage"></p>
+        <ul class="arev__list" id="reviewsList"></ul>
+      </div>
+    </details>
+
     <details class="acat" id="socialCard">
       <summary class="acat__head">
         <span class="acat__title">روابط التواصل الاجتماعي</span>

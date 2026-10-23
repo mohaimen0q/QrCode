@@ -42,8 +42,58 @@ async function writeJson(key, value) {
     });
     return;
   }
-  fs.mkdirSync(localDir, { recursive: true });
+  fs.mkdirSync(path.dirname(path.join(localDir, key)), { recursive: true });
   fs.writeFileSync(path.join(localDir, key), body);
+}
+
+// Every stored file whose name starts with prefix: [{ key, url, at }] (at = upload time in ms).
+async function listKeys(prefix) {
+  if (useBlob) {
+    const { list } = require("@vercel/blob");
+    const out = [];
+    let cursor;
+    do {
+      const page = await list({ prefix, cursor, limit: 1000 });
+      for (const b of page.blobs) out.push({ key: b.pathname, url: b.url, at: new Date(b.uploadedAt).getTime() });
+      cursor = page.hasMore ? page.cursor : undefined;
+    } while (cursor);
+    return out;
+  }
+  const out = [];
+  const base = path.join(localDir, path.dirname(prefix + "x"));
+  (function walk(dir) {
+    if (!fs.existsSync(dir)) return;
+    for (const name of fs.readdirSync(dir)) {
+      const full = path.join(dir, name);
+      if (fs.statSync(full).isDirectory()) { walk(full); continue; }
+      const key = path.relative(localDir, full).split(path.sep).join("/");
+      if (key.startsWith(prefix)) out.push({ key, url: null, at: fs.statSync(full).mtimeMs });
+    }
+  })(base);
+  return out;
+}
+
+// Reads a JSON file found by listKeys (no extra lookup).
+async function readEntry(entry) {
+  if (useBlob) {
+    const res = await fetch(entry.url + "?v=" + entry.at, { cache: "no-store" });
+    return res.ok ? res.json() : null;
+  }
+  const file = path.join(localDir, entry.key);
+  return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : null;
+}
+
+async function removeEntries(entries) {
+  if (!entries.length) return;
+  if (useBlob) {
+    const { del } = require("@vercel/blob");
+    await del(entries.map((e) => e.url));
+    return;
+  }
+  for (const e of entries) {
+    const file = path.join(localDir, e.key);
+    if (fs.existsSync(file)) fs.unlinkSync(file);
+  }
 }
 
 function readMenu() {
@@ -66,4 +116,4 @@ async function saveImage(name, buffer, contentType) {
   return "/uploads/" + name; // served by dev-server.js only
 }
 
-module.exports = { ready, readJson, writeJson, readMenu, writeMenu, saveImage };
+module.exports = { ready, readJson, writeJson, readMenu, writeMenu, saveImage, listKeys, readEntry, removeEntries };

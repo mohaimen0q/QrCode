@@ -73,6 +73,12 @@
     </label>
 
     <div id="menu"></div>
+    <section class="rate" id="rate" hidden>
+      <img class="cat__ornament" src="assets/ornament.svg" alt="" width="213" height="30">
+      <h2 class="rate__title" data-i18n="rateSite">قيّم تجربتك في فينيسيا</h2>
+      <div id="rateScore"></div>
+      <button class="rate__btn" id="rateBtn" type="button" aria-haspopup="dialog" data-i18n="addReview">أضف تقييمك</button>
+    </section>
     <p class="empty" id="empty" data-i18n="empty" hidden>لا يوجد طبق بهذا الاسم. جرّب كلمة أخرى.</p>
     <noscript><p class="empty">يحتاج عرض القائمة إلى تفعيل JavaScript في المتصفح.</p></noscript>
   </main>
@@ -139,6 +145,7 @@
       <p class="closeup__price" id="sheetPrice"></p>
       <p class="closeup__off" id="sheetOff" hidden></p>
       <div class="closeup__desc" id="sheetDesc"></div>
+      <section class="reviews" id="reviews"></section>
     </div>
   </dialog>
 

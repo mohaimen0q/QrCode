@@ -491,6 +491,79 @@ img { display: block; max-width: 100%; height: auto; }
 .cat__list--cards .dish__name { font-size: 1.0625rem; }
 .cat__list--cards .dish__desc { font-size: 0.9375rem; line-height: 1.55; }
 
+/* ---------- Reviews (inside the close-up) and the restaurant rating ---------- */
+.stars { display: inline-flex; gap: 1px; color: #cfd0cf; font-size: 1rem; line-height: 1; letter-spacing: 0; }
+.stars .is-on { color: #c8962c; }
+.score { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 6px 0 0; }
+.score__avg { font-size: 1.375rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.score__count, .score__none { color: var(--muted); font-size: 0.9375rem; font-weight: 300; }
+.reviews { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+.reviews__title { margin: 0; font-size: 1.25rem; font-weight: 700; }
+.reviews__list { margin: 18px 0 0; padding: 0; list-style: none; }
+.review { padding: 12px 0; border-top: 1px solid var(--line); }
+.review__head { display: flex; align-items: center; gap: 10px; }
+.review__name { font-size: 0.9375rem; font-weight: 500; }
+.review__text { margin: 4px 0 0; color: var(--muted); font-size: 1rem; font-weight: 300; line-height: 1.65; overflow-wrap: anywhere; }
+.rform { margin-top: 16px; padding: 16px; background: var(--mist); border-radius: 10px; }
+.rform__title { margin: 0 0 8px; font-size: 1.0625rem; font-weight: 700; }
+.rform__note { margin: 0; color: var(--muted); font-weight: 300; line-height: 1.6; }
+.rform__stars { display: flex; gap: 4px; margin-bottom: 10px; }
+.rform__star {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  color: #cfd0cf;
+  font-size: 2rem;
+  line-height: 1;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.rform__star.is-on { color: #c8962c; }
+.rform__star:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; border-radius: 6px; }
+.rform__input {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--paper);
+  border: 1px solid #c9cbca;
+  border-radius: 8px;
+}
+.rform__text { resize: vertical; min-height: 84px; }
+.rform__input:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.rform__trap { position: absolute; width: 1px; height: 1px; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); opacity: 0; }
+.rform__send, .rate__btn {
+  min-height: 46px;
+  padding: 0 22px;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  background: var(--ink);
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.rform__send:disabled { opacity: 0.5; cursor: default; }
+.rform__status { margin: 8px 0 0; color: #8a1f15; font-size: 0.9375rem; }
+.rform__status:empty { display: none; }
+.rate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin: 56px 0 8px;
+  padding-top: 8px;
+  text-align: center;
+}
+.rate[hidden] { display: none; }
+.rate__title { margin: 8px 0 0; font-size: 1.75rem; font-weight: 700; }
+.rate .score { justify-content: center; }
+.rate__btn { margin-top: 12px; }
+
 /* ---------- Dish close-up (opens when a dish is tapped) ---------- */
 .is-locked, .is-locked body { overflow: hidden; }
 .closeup {
@@ -545,7 +618,7 @@ img { display: block; max-width: 100%; height: auto; }
   background: var(--ink);
   border-radius: 999px;
 }
-.closeup__off[hidden] { display: none; }
+.closeup__off[hidden], .closeup__price[hidden] { display: none; }
 .closeup__desc { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
 .closeup__desc:empty { display: none; }
 .closeup__desc p { margin: 0 0 6px; color: var(--muted); font-size: 1.0625rem; font-weight: 300; line-height: 1.7; }

@@ -22,6 +22,21 @@
       allSections: "عرض كل الأقسام",
       close: "إغلاق",
       unavailable: "غير متاح",
+      reviews: "التقييمات",
+      siteReviews: "تقييمات المطعم",
+      rateSite: "قيّم تجربتك في فينيسيا",
+      addReview: "أضف تقييمك",
+      pickStars: "اختر عدد النجوم",
+      yourName: "اسمك (اختياري)",
+      yourComment: "تعليقك (اختياري)",
+      send: "إرسال التقييم",
+      thanks: "شكراً لتقييمك!",
+      sent: "وصلنا تقييمك، وسيظهر هنا بعد مراجعته.",
+      limit: "وصلت إلى الحد اليومي للتقييمات. حاول غداً.",
+      full: "لا يمكن استقبال تقييمات الآن. حاول لاحقاً.",
+      failed: "تعذّر الإرسال. حاول مرة أخرى.",
+      noReviews: "لا توجد تقييمات بعد. كن أول من يقيّم!",
+      guest: "زبون",
       toTop: "العودة إلى أعلى القائمة",
       currency: "دينار",
       welcome: "أهلاً بكم في فينيسيا",
@@ -47,6 +62,21 @@
       allSections: "Show all sections",
       close: "Close",
       unavailable: "Unavailable",
+      reviews: "Reviews",
+      siteReviews: "Restaurant reviews",
+      rateSite: "Rate your visit to Venecia",
+      addReview: "Add your review",
+      pickStars: "Choose a star rating",
+      yourName: "Your name (optional)",
+      yourComment: "Your comment (optional)",
+      send: "Send review",
+      thanks: "Thank you for your review!",
+      sent: "We received it. It will appear here once it has been checked.",
+      limit: "You've reached today's review limit. Try again tomorrow.",
+      full: "Reviews can't be received right now. Try again later.",
+      failed: "Couldn't send. Please try again.",
+      noReviews: "No reviews yet. Be the first!",
+      guest: "Guest",
       toTop: "Back to the top of the menu",
       currency: "LYD",
       welcome: "Welcome to Venecia",
@@ -231,6 +261,7 @@
         var dish = el("li", "dish" + (off ? " is-unavailable" : ""));
         // tapping a dish opens its close-up
         dish.item = item;
+        dish.reviewKey = cat.id + "|" + item.n;
         dish.tabIndex = 0;
         dish.setAttribute("aria-haspopup", "dialog");
         // searchable in both languages whichever one is showing
@@ -328,15 +359,30 @@
       if (hits) any = true;
     });
     empty.hidden = any || !sections.length;
+    document.getElementById("rate").hidden = !sections.length || Boolean(q);
     onScroll();
   }
 
-  // ---- Dish close-up: photo, name, price and description ----
+  // ---- Dish close-up: photo, name, price, description and reviews ----
   var sheet = document.getElementById("sheet");
   var sheetMedia = document.getElementById("sheetMedia");
   var sheetDesc = document.getElementById("sheetDesc");
+  var sheetPrice = document.getElementById("sheetPrice");
+  var sheetOff = document.getElementById("sheetOff");
+  var reviewsBox = document.getElementById("reviews");
   var sheetOpen = false;
-  function openDish(item) {
+
+  function showSheet() {
+    document.getElementById("closeSheet").setAttribute("aria-label", TEXT[lang].close);
+    if (sheet.showModal) sheet.showModal(); else sheet.setAttribute("open", "");
+    sheet.scrollTop = 0;
+    root.classList.add("is-locked");
+    sheetOpen = true;
+    // the phone's back button closes the close-up instead of leaving the menu
+    history.pushState({ sheet: true }, "");
+  }
+
+  function openDish(item, key) {
     var name = pick(item.n, item.nEn);
     sheetMedia.textContent = "";
     sheetMedia.hidden = !item.img;
@@ -348,25 +394,32 @@
       sheetMedia.appendChild(img);
     }
     document.getElementById("sheetName").textContent = name;
-    var price = document.getElementById("sheetPrice");
-    price.textContent = "";
-    price.appendChild(el("b", null, item.p));
-    price.appendChild(el("span", null, TEXT[lang].currency));
-    var off = document.getElementById("sheetOff");
-    off.textContent = TEXT[lang].unavailable;
-    off.hidden = item.unavailable !== true;
+    sheetPrice.textContent = "";
+    sheetPrice.hidden = false;
+    sheetPrice.appendChild(el("b", null, item.p));
+    sheetPrice.appendChild(el("span", null, TEXT[lang].currency));
+    sheetOff.textContent = TEXT[lang].unavailable;
+    sheetOff.hidden = item.unavailable !== true;
     sheetDesc.textContent = "";
     [[item.d, item.dEn], [item.d2, item.d2En]].forEach(function (line) {
       if (line[0]) sheetDesc.appendChild(el("p", null, pick(line[0], line[1])));
     });
-    document.getElementById("closeSheet").setAttribute("aria-label", TEXT[lang].close);
-    if (sheet.showModal) sheet.showModal(); else sheet.setAttribute("open", "");
-    sheet.scrollTop = 0;
-    root.classList.add("is-locked");
-    sheetOpen = true;
-    // the phone's back button closes the close-up instead of leaving the menu
-    history.pushState({ sheet: true }, "");
+    renderReviews(key, item.n);
+    showSheet();
   }
+
+  // the same close-up, used for reviewing the restaurant as a whole
+  function openSite() {
+    sheetMedia.textContent = "";
+    sheetMedia.hidden = true;
+    document.getElementById("sheetName").textContent = TEXT[lang].siteReviews;
+    sheetPrice.hidden = true;
+    sheetOff.hidden = true;
+    sheetDesc.textContent = "";
+    renderReviews("site", "المطعم");
+    showSheet();
+  }
+
   function hideSheet() {
     if (!sheetOpen) return;
     sheetOpen = false;
@@ -383,14 +436,188 @@
   sheet.addEventListener("click", function (e) { if (e.target === sheet) closeSheet(); });
   menu.addEventListener("click", function (e) {
     var dish = e.target.closest(".dish");
-    if (dish && dish.item) openDish(dish.item);
+    if (dish && dish.item) openDish(dish.item, dish.reviewKey);
   });
   menu.addEventListener("keydown", function (e) {
     if ((e.key === "Enter" || e.key === " ") && e.target.item) {
       e.preventDefault();
-      openDish(e.target.item);
+      openDish(e.target.item, e.target.reviewKey);
     }
   });
+  document.getElementById("rateBtn").addEventListener("click", openSite);
+
+  // ---- Reviews: stars and comments, shown only after the admin approves them ----
+  var REVIEWED_KEY = "venecia_reviewed";
+  var reviewsLoad = null;
+  function loadReviews() {
+    if (!reviewsLoad) {
+      var empty = { site: { n: 0, sum: 0, list: [] }, dishes: {} };
+      reviewsLoad = !window.fetch || location.protocol === "file:"
+        ? Promise.resolve(empty)
+        : fetch("/api/reviews")
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) { return d || empty; })
+          .catch(function () { return empty; });
+    }
+    return reviewsLoad;
+  }
+
+  function reviewed() {
+    try { return JSON.parse(localStorage.getItem(REVIEWED_KEY)) || {}; } catch (e) { return {}; }
+  }
+
+  function starsRow(value) {
+    var row = el("span", "stars");
+    row.setAttribute("role", "img");
+    row.setAttribute("aria-label", value + " / 5");
+    for (var i = 1; i <= 5; i++) row.appendChild(el("span", i <= Math.round(value) ? "is-on" : null, "★"));
+    return row;
+  }
+
+  function reviewCount(n) {
+    if (lang === "en") return n === 1 ? "1 review" : n + " reviews";
+    if (n === 1) return "تقييم واحد";
+    if (n === 2) return "تقييمان";
+    return n + (n <= 10 ? " تقييمات" : " تقييماً");
+  }
+
+  function summaryLine(bucket) {
+    var line = el("p", "score");
+    if (!bucket || !bucket.n) {
+      line.appendChild(el("span", "score__none", TEXT[lang].noReviews));
+      return line;
+    }
+    var avg = Math.round((bucket.sum / bucket.n) * 10) / 10;
+    line.appendChild(el("b", "score__avg", avg.toFixed(1)));
+    line.appendChild(starsRow(avg));
+    line.appendChild(el("span", "score__count", reviewCount(bucket.n)));
+    return line;
+  }
+
+  function renderReviews(key, targetName) {
+    var t = TEXT[lang];
+    reviewsBox.textContent = "";
+    reviewsBox.dataset.key = key;
+    reviewsBox.appendChild(el("h3", "reviews__title", t.reviews));
+    var summary = el("div");
+    var list = el("ul", "reviews__list");
+    reviewsBox.appendChild(summary);
+
+    loadReviews().then(function (data) {
+      if (reviewsBox.dataset.key !== key) return; // another dish was opened meanwhile
+      var bucket = key === "site" ? data.site : data.dishes[key];
+      summary.appendChild(summaryLine(bucket));
+      ((bucket && bucket.list) || []).forEach(function (r) {
+        var li = el("li", "review");
+        var head = el("div", "review__head");
+        head.appendChild(starsRow(r.stars));
+        head.appendChild(el("span", "review__name", r.name || t.guest));
+        li.appendChild(head);
+        if (r.text) li.appendChild(el("p", "review__text", r.text));
+        list.appendChild(li);
+      });
+    });
+
+    var done = reviewed()[key];
+    var form = el("form", "rform");
+    form.noValidate = true;
+    form.appendChild(el("h4", "rform__title", done ? t.thanks : t.addReview));
+    if (done) {
+      form.appendChild(el("p", "rform__note", t.sent));
+    } else {
+      var stars = 0;
+      var pickRow = el("div", "rform__stars");
+      pickRow.setAttribute("role", "radiogroup");
+      pickRow.setAttribute("aria-label", t.pickStars);
+      var buttons = [];
+      for (var i = 1; i <= 5; i++) {
+        (function (value) {
+          var b = el("button", "rform__star", "★");
+          b.type = "button";
+          b.setAttribute("role", "radio");
+          b.setAttribute("aria-checked", "false");
+          b.setAttribute("aria-label", value + " / 5");
+          b.addEventListener("click", function () {
+            stars = value;
+            buttons.forEach(function (x, j) {
+              x.classList.toggle("is-on", j < value);
+              x.setAttribute("aria-checked", j === value - 1 ? "true" : "false");
+            });
+          });
+          buttons.push(b);
+          pickRow.appendChild(b);
+        })(i);
+      }
+      form.appendChild(pickRow);
+
+      var name = el("input", "rform__input");
+      name.type = "text";
+      name.maxLength = 40;
+      name.autocomplete = "given-name";
+      name.placeholder = t.yourName;
+      name.setAttribute("aria-label", t.yourName);
+      form.appendChild(name);
+      var comment = el("textarea", "rform__input rform__text");
+      comment.maxLength = 500;
+      comment.rows = 3;
+      comment.placeholder = t.yourComment;
+      comment.setAttribute("aria-label", t.yourComment);
+      form.appendChild(comment);
+      // left empty by people; filled in only by automated spam senders
+      var trap = el("input", "rform__trap");
+      trap.type = "text";
+      trap.name = "website";
+      trap.tabIndex = -1;
+      trap.autocomplete = "off";
+      trap.setAttribute("aria-hidden", "true");
+      form.appendChild(trap);
+
+      var send = el("button", "rform__send", t.send);
+      send.type = "submit";
+      form.appendChild(send);
+      var status = el("p", "rform__status");
+      status.setAttribute("role", "status");
+      form.appendChild(status);
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        if (!stars) { status.textContent = t.pickStars; return; }
+        send.disabled = true;
+        status.textContent = "";
+        fetch("/api/reviews", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ target: key, targetName: targetName, stars: stars, name: name.value, text: comment.value, website: trap.value })
+        }).then(function (r) {
+          if (r.ok) {
+            var all = reviewed();
+            all[key] = 1;
+            try { localStorage.setItem(REVIEWED_KEY, JSON.stringify(all)); } catch (err) {}
+            form.textContent = "";
+            form.appendChild(el("h4", "rform__title", t.thanks));
+            form.appendChild(el("p", "rform__note", t.sent));
+            return;
+          }
+          send.disabled = false;
+          status.textContent = r.status === 429 ? t.limit : r.status === 507 ? t.full : t.failed;
+        }).catch(function () {
+          send.disabled = false;
+          status.textContent = t.failed;
+        });
+      });
+    }
+    reviewsBox.appendChild(form);
+    reviewsBox.appendChild(list);
+  }
+
+  // the restaurant's own rating, under the last section
+  function showSiteScore() {
+    var box = document.getElementById("rateScore");
+    loadReviews().then(function (data) {
+      box.textContent = "";
+      if (data.site && data.site.n) box.appendChild(summaryLine(data.site));
+    });
+  }
 
   // ---- Full category list ----
   function closeIndex() {
@@ -415,6 +642,7 @@
       var keep = current;
       applyLanguage();
       render();
+      showSiteScore();
       if (keep && document.getElementById(keep)) document.getElementById(keep).scrollIntoView({ behavior: "auto" });
       onScroll();
     });
@@ -465,6 +693,7 @@
   loadMenu(function (loaded) {
     data = loaded;
     render();
+    showSiteScore();
     // the page was opened on a section link before the sections existed
     if (location.hash.length > 1) {
       var target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
