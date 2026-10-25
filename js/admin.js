@@ -488,9 +488,22 @@
     });
     offLabel.appendChild(offBox);
     offLabel.appendChild(el("span", null, "غير متاح حالياً"));
+    // shown on the menu with a star: "الأعلى تقييماً"
+    var topLabel = el("label", "check");
+    var topBox = el("input");
+    topBox.type = "checkbox";
+    topBox.checked = item.top === true;
+    topBox.addEventListener("change", function () {
+      checkpoint();
+      if (topBox.checked) item.top = true; else delete item.top;
+      setDirty(true);
+    });
+    topLabel.appendChild(topBox);
+    topLabel.appendChild(el("span", null, "الأعلى تقييماً ★"));
     var checks = el("div", "adish__checks");
     checks.appendChild(show);
     checks.appendChild(offLabel);
+    checks.appendChild(topLabel);
     tools.appendChild(checks);
     if (item.img) {
       tools.appendChild(iconBtn("حذف الصورة", "حذف الصورة", function () {

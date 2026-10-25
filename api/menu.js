@@ -40,6 +40,7 @@ function clean(input) {
       if (img && /^(https:\/\/[^\s"'<>]+|\/uploads\/[\w.-]+|[\w-]+)$/.test(img)) dish.img = img;
       if (item.hidden === true) dish.hidden = true;
       if (item.unavailable === true) dish.unavailable = true;
+      if (item.top === true) dish.top = true;
       items.push(dish);
     }
     const entry = { id, title, layout: LAYOUTS.includes(cat.layout) ? cat.layout : "list", items };

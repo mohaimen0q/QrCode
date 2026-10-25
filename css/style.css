@@ -462,6 +462,24 @@ img { display: block; max-width: 100%; height: auto; }
   .dish__off { border-radius: 6px; }
 }
 
+/* "الأعلى تقييماً" pill, switched on per dish on the admin page */
+.top-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 10px;
+  color: #7a5310;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.7;
+  background: #fbf1dc;
+  border-radius: 6px;
+}
+.top-badge__star { color: #c8962c; font-size: 0.875rem; }
+.dish__top { margin: 4px 0 2px; }
+.closeup__top { margin: 10px 0 0; }
+.closeup__top[hidden] { display: none; }
+
 /* Display styles a category can use (chosen on the admin page) */
 .cat__list--cards {
   display: grid;

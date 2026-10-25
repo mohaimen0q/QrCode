@@ -22,6 +22,7 @@
       allSections: "عرض كل الأقسام",
       close: "إغلاق",
       unavailable: "غير متاح",
+      topRated: "الأعلى تقييماً",
       reviews: "التقييمات",
       siteReviews: "تقييمات المطعم",
       rateSite: "قيّم تجربتك في فينيسيا",
@@ -61,6 +62,7 @@
       allSections: "Show all sections",
       close: "Close",
       unavailable: "Unavailable",
+      topRated: "Top rated",
       reviews: "Reviews",
       siteReviews: "Restaurant reviews",
       rateSite: "Rate your visit to Venecia",
@@ -102,6 +104,14 @@
     if (cls) node.className = cls;
     if (text != null) node.textContent = text;
     return node;
+  }
+
+  // the "الأعلى تقييماً" pill the admin can switch on for a dish
+  function topBadge(cls) {
+    var badge = el("span", "top-badge" + (cls ? " " + cls : ""));
+    badge.appendChild(el("span", "top-badge__star", "★"));
+    badge.appendChild(document.createTextNode(TEXT[lang].topRated));
+    return badge;
   }
 
   // Makes search forgiving: ignores tashkeel and the common alef / ya / ta-marbuta spelling variants.
@@ -293,6 +303,7 @@
         price.appendChild(el("span", null, TEXT[lang].currency));
         top.appendChild(price);
         body.appendChild(top);
+        if (item.top === true) body.appendChild(topBadge("dish__top"));
         if (off && !withPhoto) body.appendChild(el("p", "dish__badge", TEXT[lang].unavailable));
         if (d) body.appendChild(el("p", "dish__desc", d));
         if (d2) body.appendChild(el("p", "dish__desc", d2));
@@ -367,6 +378,7 @@
   var sheetDesc = document.getElementById("sheetDesc");
   var sheetPrice = document.getElementById("sheetPrice");
   var sheetOff = document.getElementById("sheetOff");
+  var sheetTop = document.getElementById("sheetTop");
   var reviewsBox = document.getElementById("reviews");
   var sheetOpen = false;
 
@@ -398,6 +410,9 @@
     sheetPrice.appendChild(el("span", null, TEXT[lang].currency));
     sheetOff.textContent = TEXT[lang].unavailable;
     sheetOff.hidden = item.unavailable !== true;
+    sheetTop.textContent = "";
+    sheetTop.appendChild(topBadge());
+    sheetTop.hidden = item.top !== true;
     sheetDesc.textContent = "";
     [[item.d, item.dEn], [item.d2, item.d2En]].forEach(function (line) {
       if (line[0]) sheetDesc.appendChild(el("p", null, pick(line[0], line[1])));
@@ -413,6 +428,7 @@
     document.getElementById("sheetName").textContent = TEXT[lang].siteReviews;
     sheetPrice.hidden = true;
     sheetOff.hidden = true;
+    sheetTop.hidden = true;
     sheetDesc.textContent = "";
     renderReviews("site", "المطعم");
     showSheet();
