@@ -617,6 +617,39 @@ img { display: block; max-width: 100%; height: auto; }
 .closeup__desc { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
 .closeup__desc:empty { display: none; }
 .closeup__desc p { margin: 0 0 6px; color: var(--muted); font-size: 1.0625rem; font-weight: 300; line-height: 1.7; }
+/* tablets and desktops: the whole dish photo shows (never cropped) without filling the page */
+@media (min-width: 600px) {
+  .closeup__media { position: relative; isolation: isolate; display: grid; place-items: center; min-height: 0; padding: 32px; background: var(--paper); }
+  /* the same food pattern as behind the menu */
+  .closeup__media::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: url("../assets/pattern.png") center / cover no-repeat;
+    filter: invert(1);
+    opacity: 0.07;
+    pointer-events: none;
+  }
+  .closeup__media img {
+    width: auto;
+    max-width: 100%;
+    max-height: 50vh;
+    aspect-ratio: auto;
+    object-fit: contain;
+    border-radius: 6px;
+  }
+  .closeup__body { max-width: 700px; margin-inline: auto; padding-inline: 32px; }
+}
+/* horizontal screens: photo on one side, details on the other, each fitting the screen */
+@media (min-width: 600px) and (orientation: landscape) {
+  .closeup { overflow: hidden; }
+  .closeup[open] { display: grid; grid-template-columns: 1fr 1fr; }
+  .closeup:has(.closeup__media[hidden]) { grid-template-columns: 1fr; }
+  .closeup__media img { max-height: calc(100vh - 64px); }
+  .closeup__body { width: 100%; min-height: 0; padding: 72px 40px 40px; overflow-y: auto; }
+  .closeup__media[hidden] + .closeup__body { padding-top: 76px; }
+}
 
 .empty {
   margin: 56px 0;
