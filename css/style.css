@@ -626,20 +626,21 @@ img { display: block; max-width: 100%; height: auto; }
 .closeup__desc { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
 .closeup__desc:empty { display: none; }
 .closeup__desc p { margin: 0 0 6px; color: var(--muted); font-size: 1.0625rem; font-weight: 300; line-height: 1.7; }
-/* tablets and desktops: the dish opens as a card in the middle, the menu dimmed behind it.
-   The photo fills the top of the card and the menu's food pattern fills the rest. */
-@media (min-width: 600px) {
+/* horizontal tablets and desktops: the dish opens as a wide card in the middle, the menu
+   dimmed behind it — the square photo fills the card's height on one side and the details,
+   on the menu's food pattern, scroll on the other. Vertical tablets keep the phone page. */
+@media (min-width: 600px) and (orientation: landscape) {
   .closeup {
-    /* narrow enough on short screens that the photo leaves room for the details */
-    width: min(580px, calc(100% - 48px), 73vh);
-    height: auto;
-    max-height: calc(100% - 64px);
+    width: min(920px, calc(100% - 48px));
+    height: min(540px, calc(100% - 48px));
+    max-height: none;
     margin: auto;
     overflow: hidden;
     border-radius: 14px;
     box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.5);
   }
-  .closeup[open] { display: flex; flex-direction: column; }
+  .closeup[open] { display: grid; grid-template-columns: auto minmax(0, 1fr); }
+  .closeup:has(.closeup__media[hidden])[open] { grid-template-columns: minmax(0, 1fr); }
   .closeup::before {
     content: "";
     position: absolute;
@@ -649,9 +650,9 @@ img { display: block; max-width: 100%; height: auto; }
     opacity: 0.07;
     pointer-events: none;
   }
-  .closeup__media { position: relative; flex: none; }
-  .closeup__media img { aspect-ratio: 4 / 3; }
-  .closeup__body { position: relative; flex: 0 1 auto; min-height: 0; padding: 20px 24px 28px; overflow-y: auto; scrollbar-width: none; }
+  .closeup__media { position: relative; height: 100%; min-height: 0; }
+  .closeup__media img { width: auto; max-width: 52vw; height: 100%; aspect-ratio: 1; }
+  .closeup__body { position: relative; min-height: 0; padding: 64px 28px 28px; overflow-y: auto; scrollbar-width: none; }
   .closeup__body::-webkit-scrollbar { display: none; }
 }
 
