@@ -631,8 +631,8 @@ img { display: block; max-width: 100%; height: auto; }
    on the menu's food pattern, scroll on the other. Vertical tablets keep the phone page. */
 @media (min-width: 600px) and (orientation: landscape) {
   .closeup {
-    width: min(920px, calc(100% - 48px));
-    height: min(540px, calc(100% - 48px));
+    width: min(860px, calc(100% - 48px));
+    height: min(500px, calc(100% - 48px));
     max-height: none;
     margin: auto;
     overflow: hidden;
@@ -652,8 +652,18 @@ img { display: block; max-width: 100%; height: auto; }
   }
   .closeup__media { position: relative; height: 100%; min-height: 0; }
   .closeup__media img { width: auto; max-width: 52vw; height: 100%; aspect-ratio: 1; }
-  .closeup__body { position: relative; min-height: 0; padding: 64px 28px 28px; overflow-y: auto; scrollbar-width: none; }
+  .closeup__body { position: relative; min-height: 0; padding: 20px 26px 12px; overflow-y: auto; scrollbar-width: none; }
   .closeup__body::-webkit-scrollbar { display: none; }
+  /* tighter details so the review form fits without scrolling */
+  .closeup__desc { margin-top: 10px; padding-top: 10px; }
+  .closeup .reviews { margin-top: 12px; padding-top: 12px; }
+  .closeup .rform { margin-top: 10px; padding: 12px 14px; }
+  .closeup .rform__title { display: none; }
+  .closeup .rform__stars { margin-bottom: 6px; }
+  .closeup .rform__star { width: 36px; height: 36px; font-size: 1.75rem; }
+  .closeup .rform__input { margin-bottom: 6px; padding: 8px 12px; }
+  .closeup .rform__text { min-height: 56px; }
+  .closeup .rform__send { min-height: 40px; }
 }
 
 .empty {
