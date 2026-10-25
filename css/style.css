@@ -311,6 +311,8 @@ img { display: block; max-width: 100%; height: auto; }
 
 /* ---------- Menu sheet ---------- */
 .sheet {
+  max-width: 960px;
+  margin: 0 auto;
   padding: 22px 20px 80px;
 }
 
@@ -451,6 +453,13 @@ img { display: block; max-width: 100%; height: auto; }
   font-size: 1rem;
   font-weight: 300;
   line-height: 1.65;
+}
+
+/* tablets and desktops: the wider list gets bigger dish photos */
+@media (min-width: 768px) {
+  .dish { gap: 22px; padding: 24px 0; }
+  .dish__photo { width: 128px; height: 128px; border-radius: 6px; }
+  .dish__off { border-radius: 6px; }
 }
 
 /* Display styles a category can use (chosen on the admin page) */
@@ -617,38 +626,33 @@ img { display: block; max-width: 100%; height: auto; }
 .closeup__desc { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
 .closeup__desc:empty { display: none; }
 .closeup__desc p { margin: 0 0 6px; color: var(--muted); font-size: 1.0625rem; font-weight: 300; line-height: 1.7; }
-/* tablets and desktops: the whole dish photo shows (never cropped) without filling the page */
+/* tablets and desktops: the dish opens as a card in the middle, the menu dimmed behind it.
+   The photo fills the top of the card and the menu's food pattern fills the rest. */
 @media (min-width: 600px) {
-  .closeup__media { position: relative; isolation: isolate; display: grid; place-items: center; min-height: 0; padding: 32px; background: var(--paper); }
-  /* the same food pattern as behind the menu */
-  .closeup__media::before {
+  .closeup {
+    /* narrow enough on short screens that the photo leaves room for the details */
+    width: min(580px, calc(100% - 48px), 73vh);
+    height: auto;
+    max-height: calc(100% - 64px);
+    margin: auto;
+    overflow: hidden;
+    border-radius: 14px;
+    box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.5);
+  }
+  .closeup[open] { display: flex; flex-direction: column; }
+  .closeup::before {
     content: "";
     position: absolute;
     inset: 0;
-    z-index: -1;
     background: url("../assets/pattern.png") center / cover no-repeat;
     filter: invert(1);
     opacity: 0.07;
     pointer-events: none;
   }
-  .closeup__media img {
-    width: auto;
-    max-width: 100%;
-    max-height: 50vh;
-    aspect-ratio: auto;
-    object-fit: contain;
-    border-radius: 6px;
-  }
-  .closeup__body { max-width: 700px; margin-inline: auto; padding-inline: 32px; }
-}
-/* horizontal screens: photo on one side, details on the other, each fitting the screen */
-@media (min-width: 600px) and (orientation: landscape) {
-  .closeup { overflow: hidden; }
-  .closeup[open] { display: grid; grid-template-columns: 1fr 1fr; }
-  .closeup:has(.closeup__media[hidden]) { grid-template-columns: 1fr; }
-  .closeup__media img { max-height: calc(100vh - 64px); }
-  .closeup__body { width: 100%; min-height: 0; padding: 72px 40px 40px; overflow-y: auto; }
-  .closeup__media[hidden] + .closeup__body { padding-top: 76px; }
+  .closeup__media { position: relative; flex: none; }
+  .closeup__media img { aspect-ratio: 4 / 3; }
+  .closeup__body { position: relative; flex: 0 1 auto; min-height: 0; padding: 20px 24px 28px; overflow-y: auto; scrollbar-width: none; }
+  .closeup__body::-webkit-scrollbar { display: none; }
 }
 
 .empty {
@@ -663,6 +667,7 @@ img { display: block; max-width: 100%; height: auto; }
   background: var(--ink);
   color: #fff;
 }
+.foot__inner { max-width: 960px; margin: 0 auto; }
 .foot__head {
   display: flex;
   align-items: center;
