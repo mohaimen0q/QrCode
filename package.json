@@ -2,7 +2,10 @@
   "name": "venecia-qr-menu",
   "private": true,
   "scripts": {
-    "dev": "node dev-server.js"
+    "dev": "node dev-server.js",
+    "build": "node scripts/build-pages.js",
+    "backup": "node scripts/backup-vercel-blob.js",
+    "upload-r2": "node scripts/upload-to-r2.js"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0"

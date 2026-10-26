@@ -4,7 +4,7 @@ const store = require("./store");
 const SESSION_HOURS = 12;
 // The admin's own password (after a change or reset) and any pending email code live here,
 // encrypted with a key made from ADMIN_USER + ADMIN_PASSWORD, because stored files are public.
-// Changing ADMIN_PASSWORD on Vercel makes this file unreadable, so the Vercel password works
+// Changing ADMIN_PASSWORD on the host makes this file unreadable, so the host's password works
 // again: the last-resort way back in.
 const STATE_KEY = "admin-auth.json";
 const CACHE_MS = 30 * 1000;
@@ -46,7 +46,7 @@ async function readState(fresh) {
       const box = await store.readJson(STATE_KEY);
       if (box) state = open(box);
     } catch (e) {
-      state = {}; // unreadable: ADMIN_PASSWORD was changed on Vercel, so start over from it
+      state = {}; // unreadable: ADMIN_PASSWORD was changed on the host, so start over from it
     }
   }
   cached = state;

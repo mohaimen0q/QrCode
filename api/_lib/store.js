@@ -1,97 +1,87 @@
-// Where the edited menu and uploaded photos live.
-// On Vercel: the connected Blob store. On a developer machine: plain files in .data/.
-const fs = require("fs");
-const path = require("path");
-
+// Where the edited menu, reviews and uploaded photos live.
+// On Cloudflare: the R2 bucket bound as BUCKET (handed over by functions/api/[name].js).
+// On a developer machine (npm run dev): plain files in .data/.
 const MENU_KEY = "menu.json";
-// A connected store gives the project BLOB_STORE_ID (the SDK then signs in through Vercel itself);
-// older connections give BLOB_READ_WRITE_TOKEN instead. Either one means the store is usable.
-const useBlob = Boolean(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN);
-const localDir = path.join(process.cwd(), ".data");
+
+let bucket = null;
+function useBucket(b) {
+  bucket = b || null;
+}
+
+// fs and path are only needed on a developer machine, so they are loaded there and nowhere else
+function local() {
+  const fs = require("fs");
+  const path = require("path");
+  return { fs, path, dir: path.join(process.cwd(), ".data") };
+}
 
 function ready() {
-  return useBlob || !process.env.VERCEL;
+  return Boolean(bucket || process.env.VENECIA_DEV);
 }
 
 async function readJson(key) {
-  if (useBlob) {
-    const { list } = require("@vercel/blob");
-    const { blobs } = await list({ prefix: key, limit: 1 });
-    if (!blobs.length) return null;
-    // the upload time in the query string skips the CDN copy of an older save
-    const stamp = new Date(blobs[0].uploadedAt).getTime();
-    const res = await fetch(blobs[0].url + "?v=" + stamp, { cache: "no-store" });
-    if (!res.ok) return null;
-    return res.json();
+  if (bucket) {
+    const obj = await bucket.get(key);
+    return obj ? obj.json() : null;
   }
-  const file = path.join(localDir, key);
+  const { fs, path, dir } = local();
+  const file = path.join(dir, key);
   if (!fs.existsSync(file)) return null;
   return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
 async function writeJson(key, value) {
   const body = JSON.stringify(value);
-  if (useBlob) {
-    const { put } = require("@vercel/blob");
-    await put(key, body, {
-      access: "public",
-      addRandomSuffix: false,
-      allowOverwrite: true,
-      contentType: "application/json",
-      cacheControlMaxAge: 60
-    });
+  if (bucket) {
+    await bucket.put(key, body, { httpMetadata: { contentType: "application/json" } });
     return;
   }
-  fs.mkdirSync(path.dirname(path.join(localDir, key)), { recursive: true });
-  fs.writeFileSync(path.join(localDir, key), body);
+  const { fs, path, dir } = local();
+  fs.mkdirSync(path.dirname(path.join(dir, key)), { recursive: true });
+  fs.writeFileSync(path.join(dir, key), body);
 }
 
-// Every stored file whose name starts with prefix: [{ key, url, at }] (at = upload time in ms).
+// Every stored file whose name starts with prefix: [{ key, at }] (at = upload time in ms).
 async function listKeys(prefix) {
-  if (useBlob) {
-    const { list } = require("@vercel/blob");
+  if (bucket) {
     const out = [];
     let cursor;
     do {
-      const page = await list({ prefix, cursor, limit: 1000 });
-      for (const b of page.blobs) out.push({ key: b.pathname, url: b.url, at: new Date(b.uploadedAt).getTime() });
-      cursor = page.hasMore ? page.cursor : undefined;
+      const page = await bucket.list({ prefix, cursor, limit: 1000 });
+      for (const o of page.objects) out.push({ key: o.key, at: o.uploaded.getTime() });
+      cursor = page.truncated ? page.cursor : undefined;
     } while (cursor);
     return out;
   }
+  const { fs, path, dir: root } = local();
   const out = [];
-  const base = path.join(localDir, path.dirname(prefix + "x"));
+  const base = path.join(root, path.dirname(prefix + "x"));
   (function walk(dir) {
     if (!fs.existsSync(dir)) return;
     for (const name of fs.readdirSync(dir)) {
       const full = path.join(dir, name);
       if (fs.statSync(full).isDirectory()) { walk(full); continue; }
-      const key = path.relative(localDir, full).split(path.sep).join("/");
-      if (key.startsWith(prefix)) out.push({ key, url: null, at: fs.statSync(full).mtimeMs });
+      const key = path.relative(root, full).split(path.sep).join("/");
+      if (key.startsWith(prefix)) out.push({ key, at: fs.statSync(full).mtimeMs });
     }
   })(base);
   return out;
 }
 
-// Reads a JSON file found by listKeys (no extra lookup).
-async function readEntry(entry) {
-  if (useBlob) {
-    const res = await fetch(entry.url + "?v=" + entry.at, { cache: "no-store" });
-    return res.ok ? res.json() : null;
-  }
-  const file = path.join(localDir, entry.key);
-  return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : null;
+// Reads a JSON file found by listKeys.
+function readEntry(entry) {
+  return readJson(entry.key);
 }
 
 async function removeEntries(entries) {
   if (!entries.length) return;
-  if (useBlob) {
-    const { del } = require("@vercel/blob");
-    await del(entries.map((e) => e.url));
+  if (bucket) {
+    for (let i = 0; i < entries.length; i += 1000) await bucket.delete(entries.slice(i, i + 1000).map((e) => e.key));
     return;
   }
+  const { fs, path, dir } = local();
   for (const e of entries) {
-    const file = path.join(localDir, e.key);
+    const file = path.join(dir, e.key);
     if (fs.existsSync(file)) fs.unlinkSync(file);
   }
 }
@@ -104,16 +94,22 @@ function writeMenu(menu) {
   return writeJson(MENU_KEY, menu);
 }
 
+// Photos are kept as uploads/<name> and served at /uploads/<name>
+// (by functions/uploads/[name].js on Cloudflare, by dev-server.js locally).
 async function saveImage(name, buffer, contentType) {
-  if (useBlob) {
-    const { put } = require("@vercel/blob");
-    const blob = await put("dishes/" + name, buffer, { access: "public", contentType });
-    return blob.url;
+  if (bucket) {
+    await bucket.put("uploads/" + name, buffer, { httpMetadata: { contentType } });
+  } else {
+    const { fs, path, dir } = local();
+    fs.mkdirSync(path.join(dir, "uploads"), { recursive: true });
+    fs.writeFileSync(path.join(dir, "uploads", name), buffer);
   }
-  const dir = path.join(localDir, "uploads");
-  fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, name), buffer);
-  return "/uploads/" + name; // served by dev-server.js only
+  return "/uploads/" + name;
 }
 
-module.exports = { ready, readJson, writeJson, readMenu, writeMenu, saveImage, listKeys, readEntry, removeEntries };
+async function readImage(name) {
+  if (!bucket) return null;
+  return bucket.get("uploads/" + name);
+}
+
+module.exports = { useBucket, ready, readJson, writeJson, readMenu, writeMenu, saveImage, readImage, listKeys, readEntry, removeEntries };

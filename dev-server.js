@@ -1,4 +1,5 @@
-// Local preview only (npm run dev). On Vercel the files in /api run as serverless functions instead.
+// Local preview only (npm run dev). On Cloudflare the files in /api run as Pages Functions instead
+// (see functions/), with the R2 bucket in place of the .data folder.
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
@@ -10,6 +11,8 @@ if (fs.existsSync(path.join(__dirname, ".env"))) {
   }
 }
 
+// tells api/_lib/store.js to use the .data folder, and api/account.js to print codes instead of emailing
+process.env.VENECIA_DEV = "1";
 const PORT = process.env.PORT || 5510;
 const root = __dirname;
 process.chdir(root);
@@ -49,6 +52,6 @@ http.createServer((req, res) => {
   if (pathname === "/") pathname = "/index.html";
   let file = path.join(root, pathname);
   if (!file.startsWith(root)) { res.writeHead(403); return res.end(); }
-  if (!path.extname(file) && fs.existsSync(file + ".html")) file += ".html"; // same as Vercel's cleanUrls
+  if (!path.extname(file) && fs.existsSync(file + ".html")) file += ".html"; // same as Cloudflare Pages' clean URLs
   sendFile(res, file);
 }).listen(PORT, () => console.log("Venecia menu on http://localhost:" + PORT));

@@ -57,7 +57,7 @@ async function sendCode(state, purpose, extra) {
       console.error("email failed", res.status, await res.text().catch(() => ""));
       return "mail_failed";
     }
-  } else if (!process.env.VERCEL) {
+  } else if (process.env.VENECIA_DEV) {
     console.log("[dev] " + purpose + " code for " + adminEmail() + ": " + code); // local preview only
   } else {
     return "mail_not_configured";

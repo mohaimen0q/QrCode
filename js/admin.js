@@ -175,7 +175,7 @@
         document.getElementById("password").value = "";
         openEditor();
       } else if (r.status === 503) {
-        showLogin("لوحة الإدارة غير مفعّلة بعد: يجب ضبط ADMIN_USER و ADMIN_PASSWORD في إعدادات المشروع على Vercel ثم إعادة النشر.");
+        showLogin("لوحة الإدارة غير مفعّلة بعد: يجب ضبط ADMIN_USER و ADMIN_PASSWORD في إعدادات المشروع على Cloudflare ثم إعادة النشر.");
       } else if (r.status === 401) {
         showLogin("اسم المستخدم أو كلمة المرور غير صحيحة.");
       } else {
@@ -739,7 +739,7 @@
       }
       setDirty(true);
       if (r.status === 401) return showLogin("انتهت الجلسة. سجّل الدخول من جديد.");
-      toast(r.status === 503 ? "التخزين غير مفعّل على الخادم بعد (Vercel Blob)." : "تعذّر الحفظ. حاول مرة أخرى.", true);
+      toast(r.status === 503 ? "التخزين غير مفعّل على الخادم بعد (Cloudflare R2)." : "تعذّر الحفظ. حاول مرة أخرى.", true);
     }).catch(function () {
       setDirty(true);
       toast("تعذّر الاتصال بالخادم.", true);
