@@ -1,19 +1,22 @@
 // Copies everything in the Vercel Blob store (menu, settings, reviews, admin sign-in, photos)
-// into backup/, keeping the same folder layout. Needs BLOB_READ_WRITE_TOKEN in .env.
+// into backup/, keeping the same folder layout. Signs in with BLOB_READ_WRITE_TOKEN from .env, or with
+// BLOB_STORE_ID + VERCEL_OIDC_TOKEN from .env.vercel (made by `npx vercel env pull .env.vercel`).
 // Run: npm install, then npm run backup
 const fs = require("fs");
 const path = require("path");
 
 const root = path.join(__dirname, "..");
-const envFile = path.join(root, ".env");
-if (fs.existsSync(envFile)) {
+for (const name of [".env", ".env.vercel"]) {
+  const envFile = path.join(root, name);
+  if (!fs.existsSync(envFile)) continue;
   for (const line of fs.readFileSync(envFile, "utf8").split(/\r?\n/)) {
-    const m = /^([A-Z_]+)=(.*)$/.exec(line.trim());
-    if (m && m[2] && !(m[1] in process.env)) process.env[m[1]] = m[2];
+    const m = /^([A-Z_]+)="?(.*?)"?$/.exec(line.trim());
+    if (m && m[2] && m[2] !== "[SENSITIVE]" && !(m[1] in process.env)) process.env[m[1]] = m[2];
   }
 }
-if (!process.env.BLOB_READ_WRITE_TOKEN) {
-  console.error("Add BLOB_READ_WRITE_TOKEN=... to .env first (Vercel > Storage > the blob store > .env.local).");
+if (!process.env.BLOB_READ_WRITE_TOKEN && !(process.env.BLOB_STORE_ID && process.env.VERCEL_OIDC_TOKEN)) {
+  console.error("Add BLOB_READ_WRITE_TOKEN=... to .env (Vercel > Storage > the blob store > .env.local),");
+  console.error("or run `npx vercel env pull .env.vercel --environment=production` in this folder.");
   process.exit(1);
 }
 

@@ -11,3 +11,4 @@ dist/
 .wrangler/
 .dev.vars
 backup/
+.env.vercel
