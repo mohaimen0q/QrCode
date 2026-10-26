@@ -58,8 +58,8 @@ module.exports = async (req, res) => {
   const all = new URL(req.url, "http://x").searchParams.get("all") === "1";
 
   if (req.method === "GET" && !all) {
-    // the edge keeps a copy for a minute, so busy evenings don't hit storage on every visit
-    res.setHeader("Vercel-CDN-Cache-Control", "max-age=60");
+    // browsers and the edge may keep a copy for a minute, so busy evenings don't hit storage on every visit
+    res.setHeader("Cache-Control", "public, max-age=60");
     const pub = store.ready() ? await store.readJson(PUBLIC_KEY) : null;
     return res.status(200).json(pub || { site: { n: 0, sum: 0, list: [] }, dishes: {} });
   }

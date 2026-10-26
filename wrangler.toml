@@ -1,0 +1,10 @@
+# Cloudflare Pages settings. The build (npm run build) puts the public files in dist/;
+# functions/ holds the /api and /uploads routes, which use the R2 bucket below as BUCKET.
+name = "venecia-menu"
+pages_build_output_dir = "dist"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "venicia"

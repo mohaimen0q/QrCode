@@ -6,3 +6,8 @@ node_modules/
 .vercel/
 review/
 assets/dishes.zip
+
+dist/
+.wrangler/
+.dev.vars
+backup/
