@@ -31,7 +31,8 @@ async function sendCode(state, purpose, extra) {
   if (sent.length && now - sent[sent.length - 1] < RESEND_GAP) return "wait";
   if (sent.length >= PER_HOUR) return "wait";
 
-  const code = String(crypto.randomInt(0, 1000000)).padStart(6, "0");
+  // 0-999999 from 4 random bytes; the tiny bias of the modulo does not matter for a 10-minute code
+  const code = String(crypto.randomBytes(4).readUInt32BE(0) % 1000000).padStart(6, "0");
   const title = purpose === "reset" ? "رمز إعادة تعيين كلمة المرور" : "رمز تأكيد تغيير كلمة المرور";
   const lines = [
     title + " للوحة إدارة قائمة فينيسيا:",

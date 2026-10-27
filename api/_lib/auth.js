@@ -21,17 +21,29 @@ function boxKey() {
   return sha256("venecia-auth\n" + process.env.ADMIN_USER + "\n" + process.env.ADMIN_PASSWORD);
 }
 
-function seal(value) {
-  const iv = crypto.randomBytes(12);
-  const cipher = crypto.createCipheriv("aes-256-gcm", boxKey(), iv);
-  const data = Buffer.concat([cipher.update(JSON.stringify(value), "utf8"), cipher.final()]);
-  return { iv: iv.toString("base64"), tag: cipher.getAuthTag().toString("base64"), data: data.toString("base64") };
+// AES-256-GCM through Web Crypto, which both Node and Cloudflare provide (Cloudflare has no createCipheriv).
+// The stored shape { iv, tag, data } is the same as before, so a file saved by the old code still opens.
+const subtle = (globalThis.crypto && globalThis.crypto.subtle) || crypto.webcrypto.subtle;
+const TAG_BYTES = 16;
+
+function aesKey() {
+  return subtle.importKey("raw", boxKey(), "AES-GCM", false, ["encrypt", "decrypt"]);
 }
 
-function open(box) {
-  const decipher = crypto.createDecipheriv("aes-256-gcm", boxKey(), Buffer.from(box.iv, "base64"));
-  decipher.setAuthTag(Buffer.from(box.tag, "base64"));
-  return JSON.parse(Buffer.concat([decipher.update(Buffer.from(box.data, "base64")), decipher.final()]).toString("utf8"));
+async function seal(value) {
+  const iv = crypto.randomBytes(12);
+  const out = Buffer.from(await subtle.encrypt({ name: "AES-GCM", iv }, await aesKey(), Buffer.from(JSON.stringify(value), "utf8")));
+  return {
+    iv: iv.toString("base64"),
+    tag: out.subarray(out.length - TAG_BYTES).toString("base64"),
+    data: out.subarray(0, out.length - TAG_BYTES).toString("base64")
+  };
+}
+
+async function open(box) {
+  const sealed = Buffer.concat([Buffer.from(box.data, "base64"), Buffer.from(box.tag, "base64")]);
+  const plain = await subtle.decrypt({ name: "AES-GCM", iv: Buffer.from(box.iv, "base64") }, await aesKey(), sealed);
+  return JSON.parse(Buffer.from(plain).toString("utf8"));
 }
 
 let cached = null;
@@ -44,7 +56,7 @@ async function readState(fresh) {
   if (store.ready()) {
     try {
       const box = await store.readJson(STATE_KEY);
-      if (box) state = open(box);
+      if (box) state = await open(box);
     } catch (e) {
       state = {}; // unreadable: ADMIN_PASSWORD was changed on the host, so start over from it
     }
@@ -55,7 +67,7 @@ async function readState(fresh) {
 }
 
 async function writeState(state) {
-  await store.writeJson(STATE_KEY, seal(state));
+  await store.writeJson(STATE_KEY, await seal(state));
   cached = state;
   cachedAt = Date.now();
 }
